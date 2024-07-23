@@ -4,19 +4,53 @@ import sys
 
 # Local Imports
 from android_devices.adb_interface import AdbInterface
+from diagnostics.android_cpu_diagnostics import AndroidCpuDiagnostics
 
 
 class BatteryDiagnostics(QThread):
     """Class used to run battery diagnostics"""
 
-    def __init__(self):
+    def __init__(self, serial_number):
         """Constructor"""
-        # self.serial_number = serial_number
+        self.serial_number = serial_number
 
     def run(self):
         """Thread runner method for battery diagnostics"""
         battery_diag = AdbInterface()
         battery_diag.get_battery_level()
+
+class RunCpuDiagnostics(QThread):
+    """Thread class used to run cpu diagnostics"""
+
+    def __init__(self, serial_number):
+        """Constructor"""
+        self.serial_number = serial_number
+
+    def run(self):
+        """Thread runner method"""
+        android_cpu_diagnostics = AndroidCpuDiagnostics(self.serial_number)
+        android_cpu_diagnostics.run_cpu_diagnostics()
+
+
+class GeekBenchFive(QThread):
+    """Class used to run  GeekBench Bench mark"""
+
+    def __init__(self):
+        """Constructor"""
+
+    def run(self):
+        """Thread runner method for Geek Bench 5 diagnostics"""
+
+class DiagnosticTest(QThread):
+    """Thread runner class used to run android diagnostics"""
+
+    def __init__(self, serial_numbers):
+        """Constructor"""
+        self.serial_numbers = serial_numbers
+
+    def run(self):
+        """Method used to run diagnostic test"""
+
 class AndroidDiagFrontPanel(QWidget):
     """GUI Class for Android Diagnostic Panel"""
 
@@ -30,13 +64,14 @@ class AndroidDiagFrontPanel(QWidget):
         tabs = QTabWidget()
         self.diagnostic_tab = QWidget()
         self.configuration_tab = QWidget()
+        self.benchmark_tab = QWidget()
         tabs.addTab(self.diagnostic_tab, "Diagnostics Tab")
+        tabs.addTab(self.benchmark_tab, "Benchmark Tab")
         tabs.addTab(self.configuration_tab, "Configuration Tab")
 
 
         # Diagnostic Tab Layout
         self.diagnostic_tab.layout = QGridLayout()
-        self.diagnostic_tab.setLayout(self.diagnostic_tab.layout)
         self.diagnostic_tab_sub_layout = QVBoxLayout()
         self.battery_diagnostics_button = QPushButton("Battery Diagnostics")
         self.disable_wifi_radio_button = QPushButton("Disiable Wifi")
@@ -44,6 +79,7 @@ class AndroidDiagFrontPanel(QWidget):
         self.enable_nfc_button = QPushButton("Enable NFC")
         self.disable_nfc_button = QPushButton("Disable NFC")
         self.super_user_mode_button = QPushButton("Super User Mode")
+        self.run_cpu_diagnostics_button = QPushButton("Run CPU Diagnostics")
         self.diagnostic_text_box = QTextEdit()
         self.diagnostic_tab_sub_layout.addWidget(self.battery_diagnostics_button)
         self.diagnostic_tab_sub_layout.addWidget(self.disable_wifi_radio_button)
@@ -52,19 +88,36 @@ class AndroidDiagFrontPanel(QWidget):
         self.diagnostic_tab_sub_layout.addWidget(self.disable_nfc_button)
         self.diagnostic_tab_sub_layout.addWidget(self.super_user_mode_button)
         self.diagnostic_tab_sub_layout.addWidget(self.diagnostic_text_box)
+        self.diagnostic_tab_sub_layout.addWidget(self.run_cpu_diagnostics_button)
         self.diagnostic_tab.layout.addLayout(self.diagnostic_tab_sub_layout, 0, 0)
         self.diagnostic_tab.setLayout(self.diagnostic_tab.layout)
 
         # Diagnostic Button Connections
         self.enable_wifi_radio_button.clicked.connect(self.on_enable_wifi)
+        self.run_cpu_diagnostics_button.clicked.connect(self.on_run_cpu_diagnostics)
+
+        # Benchmark Tab Layout
+        self.benchmark_tab.layout = QGridLayout()
+        self.bench_mark_tab_sub_layout = QVBoxLayout()
+        self.run_geekbench_five = QPushButton("GeekBench 5")
+        self.bench_mark_tab_sub_layout.addWidget(self.run_geekbench_five)
+        self.benchmark_tab.layout.addLayout(self.bench_mark_tab_sub_layout, 0, 0)
+        self.benchmark_tab.setLayout(self.benchmark_tab.layout)
 
 
         # Configuration Tab Layout
         self.configuration_tab.layout = QGridLayout()
-        self.android_phone_serial_number_label = QLabel("Serial Number")
-        self.android_phone_serial_number = QLineEdit("Enter Android Phone Serial")
+        self.configuration_tab_sub_layout = QVBoxLayout()
+        self.android_phone_serial_number_label = QLabel("Devices to Test Serial Numbers")
+        self.android_phone_serial_number = QLineEdit("Separate by comma")
+        self.get_android_device_serial_number_button = QPushButton("Get Available Devices")
+        self.android_serial_number_text_box = QTextEdit("Available Device Serial Numbers")
+        self.configuration_tab_sub_layout.addWidget(self.get_android_device_serial_number_button)
+        self.configuration_tab_sub_layout.addWidget(self.android_serial_number_text_box)
+        self.get_android_device_serial_number_button.clicked.connect(self.get_available_devices_serial_numbers)
         self.configuration_tab.layout.addWidget(self.android_phone_serial_number_label, 0, 0)
         self.configuration_tab.layout.addWidget(self.android_phone_serial_number, 0, 1)
+        self.configuration_tab.layout.addLayout(self.configuration_tab_sub_layout, 0, 2)
         self.configuration_tab.setLayout(self.configuration_tab.layout)
 
         # Event listeners for diagnostics tab
@@ -81,9 +134,28 @@ class AndroidDiagFrontPanel(QWidget):
         """Event handler for battery diagnostics"""
         battery_diagnostics = BatteryDiagnostics()
         battery_diagnostics.run()
+    def run_geekbench_five(self):
+        """Event handler used to GeekBench 5"""
+        geek_bench_thread = GeekBenchFive()
 
     def on_enable_wifi(self):
         """Event handler for enabling WiFi"""
+
+    def get_available_devices_serial_numbers(self):
+        """Event handler for finding serial numbers"""
+        abd_interface = AdbInterface()
+        serial_numbers = abd_interface.get_available_devices()
+        self.android_serial_number_text_box.clear()
+        for _, serial_number in enumerate(serial_numbers):
+            self.android_serial_number_text_box.append(serial_number)
+
+    def on_run_cpu_diagnostics(self):
+        """Method used to spawn threads and test devices"""
+        devices_to_test = self.android_serial_number_text_box.toPlainText().splitlines()
+        for _, device in enumerate(devices_to_test):
+            cpu_diagnostics_thread = RunCpuDiagnostics(serial_number=device)
+            cpu_diagnostics_thread.run()
+
 
 
 if __name__ == '__main__':
