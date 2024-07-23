@@ -7,7 +7,7 @@ import os
 from android_devices.adb_interface import AdbInterface
 
 
-class WifiDiagnostics():
+class WifiDiagnostics:
     """Class used for Android device wifi diagnostics"""
 
 

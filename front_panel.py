@@ -5,6 +5,7 @@ import sys
 # Local Imports
 from android_devices.adb_interface import AdbInterface
 from diagnostics.android_cpu_diagnostics import AndroidCpuDiagnostics
+from diagnostics.android_wifi_diagnostics import WifiDiagnostics
 
 
 class BatteryDiagnostics(QThread):
@@ -19,7 +20,7 @@ class BatteryDiagnostics(QThread):
         battery_diag = AdbInterface()
         battery_diag.get_battery_level()
 
-class RunCpuDiagnostics(QThread):
+class RunAndroidDiagnostics(QThread):
     """Thread class used to run cpu diagnostics"""
 
     def __init__(self, serial_number):
@@ -30,6 +31,10 @@ class RunCpuDiagnostics(QThread):
         """Thread runner method"""
         android_cpu_diagnostics = AndroidCpuDiagnostics(self.serial_number)
         android_cpu_diagnostics.run_cpu_diagnostics()
+        android_wifi_diagnostics = WifiDiagnostics(self.serial_number)
+        android_wifi_diagnostics.wifi_level_one_diagnostics()
+
+
 
 
 class GeekBenchFive(QThread):
@@ -79,7 +84,7 @@ class AndroidDiagFrontPanel(QWidget):
         self.enable_nfc_button = QPushButton("Enable NFC")
         self.disable_nfc_button = QPushButton("Disable NFC")
         self.super_user_mode_button = QPushButton("Super User Mode")
-        self.run_cpu_diagnostics_button = QPushButton("Run CPU Diagnostics")
+        self.run_android_diagnostics_button = QPushButton("Run Android Diagnostics")
         self.diagnostic_text_box = QTextEdit()
         self.diagnostic_tab_sub_layout.addWidget(self.battery_diagnostics_button)
         self.diagnostic_tab_sub_layout.addWidget(self.disable_wifi_radio_button)
@@ -88,13 +93,13 @@ class AndroidDiagFrontPanel(QWidget):
         self.diagnostic_tab_sub_layout.addWidget(self.disable_nfc_button)
         self.diagnostic_tab_sub_layout.addWidget(self.super_user_mode_button)
         self.diagnostic_tab_sub_layout.addWidget(self.diagnostic_text_box)
-        self.diagnostic_tab_sub_layout.addWidget(self.run_cpu_diagnostics_button)
+        self.diagnostic_tab_sub_layout.addWidget(self.run_android_diagnostics_button)
         self.diagnostic_tab.layout.addLayout(self.diagnostic_tab_sub_layout, 0, 0)
         self.diagnostic_tab.setLayout(self.diagnostic_tab.layout)
 
         # Diagnostic Button Connections
         self.enable_wifi_radio_button.clicked.connect(self.on_enable_wifi)
-        self.run_cpu_diagnostics_button.clicked.connect(self.on_run_cpu_diagnostics)
+        self.run_android_diagnostics_button.clicked.connect(self.on_run_android_diagnostics)
 
         # Benchmark Tab Layout
         self.benchmark_tab.layout = QGridLayout()
@@ -149,12 +154,13 @@ class AndroidDiagFrontPanel(QWidget):
         for _, serial_number in enumerate(serial_numbers):
             self.android_serial_number_text_box.append(serial_number)
 
-    def on_run_cpu_diagnostics(self):
+    def on_run_android_diagnostics(self):
         """Method used to spawn threads and test devices"""
         devices_to_test = self.android_serial_number_text_box.toPlainText().splitlines()
         for _, device in enumerate(devices_to_test):
-            cpu_diagnostics_thread = RunCpuDiagnostics(serial_number=device)
-            cpu_diagnostics_thread.run()
+            android_diagnostics_thread = RunAndroidDiagnostics(serial_number=device)
+            android_diagnostics_thread.run()
+
 
 
 

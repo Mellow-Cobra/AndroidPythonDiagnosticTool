@@ -9,7 +9,7 @@ class AdbInterface:
     """Class used to interface with Android Device over ADB"""
 
 
-    def __init__(self, serial_number, host="8.8.8.8"):
+    def __init__(self, serial_number=None, host="8.8.8.8"):
         """Constructor"""
         self.serial_number = serial_number
         self.pingable_host = host
