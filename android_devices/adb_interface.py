@@ -9,20 +9,22 @@ class AdbInterface:
     """Class used to interface with Android Device over ADB"""
 
 
-    def __init__(self, serial_number):
+    def __init__(self, serial_number, host="8.8.8.8"):
         """Constructor"""
-        self.adb_shell = self.open_adb_shell(serial_number)
+        self.serial_number = serial_number
+        self.pingable_host = host
 
-    def open_adb_shell(self, serial_number):
+    def open_adb_shell(self):
         """Method used to open adb shell"""
-        adb_proc = subprocess.Popen(['adb', '-s', f'{serial_number}', 'shell'], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+        adb_proc = subprocess.Popen(['adb', '-s', f'{self.serial_number}', 'shell'], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                     shell=False)
 
         return adb_proc
 
     def get_wifi_status(self):
         """Method used to get status of WiFi from Android device"""
-        wifi_status, _ = self.adb_shell.communicate(b'dumpsys wifi | grep "Wi-Fi is"')
+        adb_shell = self.open_adb_shell()
+        wifi_status, _ = adb_shell.communicate(b'dumpsys wifi | grep "Wi-Fi is"')
 
 
         print(wifi_status.decode('utf-8'))
@@ -30,10 +32,29 @@ class AdbInterface:
 
     def get_wifi_network_info(self):
         """Method used to get Wi-Fi network information"""
-        wifi_net_info, _ = self.adb_shell.communicate(b'dumpsys wifi | grep "mNetworkInfo"')
+        adb_shell = self.open_adb_shell()
+        wifi_net_info, _ = adb_shell.communicate(b'dumpsys wifi | grep "mNetworkInfo"')
 
         print(wifi_net_info.decode('utf-8'))
 
+    def get_wifi_internet_status(self):
+        """Method used to determine if android device can connect to internet over wifi"""
+        adb_shell = self.open_adb_shell()
+        wifi_internet_info, _ = adb_shell.communicate(b'dumpsys connectivity')
+        print(wifi_internet_info)
+
+    def get_global_wifi_settings(self):
+        """Method used to determine global wifi settings"""
+        adb_shell = self.open_adb_shell()
+        wifi_global_status, _ = adb_shell.communicate(b'settings get global wifi_on')
+        print(wifi_global_status)
+
+    def run_ping_test(self):
+        adb_shell = self.open_adb_shell()
+        ping_test_command = bytes(f'ping -c 4 {self.pingable_host}', 'utf-8')
+        ping_test_result, _ = adb_shell.communicate(ping_test_command)
+
+        print(ping_test_result)
     def get_battery_level(self):
         """Method used to pull battery diagnostics from android phone"""
         battery_level = subprocess.run(["adb", "-s", f"{self.serial_number}",

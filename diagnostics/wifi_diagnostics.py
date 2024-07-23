@@ -17,7 +17,8 @@ class WifiDiagnostics():
     def wifi_level_one_diagnostics(self):
         self.adb_interface.get_wifi_status()
         self.adb_interface.get_wifi_network_info()
-
+        self.adb_interface.get_wifi_internet_status()
+        self.adb_interface.run_ping_test()
 
 
 if __name__ == '''__main__''':
