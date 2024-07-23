@@ -55,6 +55,62 @@ class AdbInterface:
         ping_test_result, _ = adb_shell.communicate(ping_test_command)
 
         print(ping_test_result)
+
+    def run_link_probe(self):
+        """Method used to run link probe"""
+        adb_shell = self.open_adb_shell()
+        link_probe_result, _ = adb_shell.communicate(b'cmd wifi send-link-probe')
+        print(link_probe_result)
+
+    def disconnect_from_wifi_network(self):
+        """Method used to diconnect from Wi-Fi"""
+        adb_shell = self.open_adb_shell()
+        disconnect_status, _ = adb_shell.communicate(b'cmd wifi')
+
+    def disable_wifi_scanning(self):
+        """Method used to disable Wi-Fi scanning"""
+        adb_shell = self.open_adb_shell()
+        wifi_scanning_status, _ = adb_shell.communicate(b'settings put global wifi_on 0')
+
+        print(wifi_scanning_status)
+
+    def set_global_wifi_off(self):
+        """Method used to set global wifi to off"""
+        adb_shell = self.open_adb_shell()
+        wifi_global_status, _ = adb_shell.communicate(b'settings put global wifi_on 0')
+
+        print(wifi_global_status)
+
+    def set_global_wifi_on(self):
+        """Method used to set global wifi to on"""
+        adb_shell = self.open_adb_shell()
+        wifi_global_status, _ = adb_shell.communicate(b'settings put global wifi_on 1')
+
+        print(wifi_global_status)
+
+    def get_wifi_station_ssid(self):
+        """Get Wi-Fi service set indentifier"""
+        adb_shell = self.open_adb_shell()
+        wifi_ssid, _ = adb_shell.communicate(b'iw wlan0 info | grep ssid')
+
+        print(wifi_ssid)
+
+    def get_signal_strength(self):
+        """Get Wi-Fi singal strength"""
+        adb_shell = self.open_adb_shell()
+        wifi_signal_strength, _ = adb_shell.communicate(b'iw dev wlan0 link | grep signal')
+
+        print(wifi_signal_strength)
+
+    def disconnect_from_wifi(self):
+        """Method used to disconnect from wifi"""
+        adb_shell = self.open_adb_shell()
+        disconnect_wifi, _ = adb_shell.communicate(b'iw dev wlan0 disconnect')
+    def enable_airplane_mode(self):
+        """Method used to enable airplane mode"""
+        adb_shell = self.open_adb_shell()
+        airplane_mode_status, _ = adb_shell.commmunicate(b'settings put global airplane_mode_on 1')
+
     def get_battery_level(self):
         """Method used to pull battery diagnostics from android phone"""
         battery_level = subprocess.run(["adb", "-s", f"{self.serial_number}",
