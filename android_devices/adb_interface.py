@@ -224,6 +224,10 @@ class AdbInterface:
 
         return serial_numbers
 
+    def get_gpu_model(self):
+        """Method used to get GPU model"""
+        pass
+
 
 if __name__ == "__main__":
     adb = AdbInterface()
