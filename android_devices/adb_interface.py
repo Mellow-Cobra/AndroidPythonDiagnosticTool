@@ -175,12 +175,14 @@ class AdbInterface:
 
     def get_cpu_frequencies(self):
         """Method used to get CPU frequencies"""
-        cpu_directories = subprocess.run(["adb", "-s", f"{self.serial_number}",
-                                          "shell", "find", "/sys/devices/system/cpu",
-                                          "-name", "cpu[0-9]*", "-type d", "-maxdepth 1"], capture_output=True)
-        cpu_directories = cpu_directories.stdout.decode("utf-8").splitlines()
         cpu_frequencies = list()
-        for index, cpu_directory in enumerate(cpu_directories):
+        available_cpus = subprocess.run(["adb", "-s", f"{self.serial_number}", "shell",
+                                         "find", "/sys/devices/system/cpu/", "-name", "cpu[0-9]*"],
+                                        capture_output=True)
+
+        available_cpus = sorted(available_cpus.stdout.decode("utf-8").splitlines())
+
+        for index, cpu_directory in enumerate(available_cpus):
             cpu_freq = subprocess.run([f"adb", "-s",  f"{self.serial_number}",
                                        "shell", f"cat {cpu_directory}/cpufreq/cpuinfo_cur_freq"],
                            capture_output=True)
