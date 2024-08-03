@@ -186,7 +186,7 @@ class AdbInterface:
             cpu_freq = subprocess.run([f"adb", "-s",  f"{self.serial_number}",
                                        "shell", f"cat {cpu_directory}/cpufreq/cpuinfo_cur_freq"],
                            capture_output=True)
-            cpu_freq = cpu_freq.stdout.decode("utf-8")
+            cpu_freq = float(cpu_freq.stdout.decode("utf-8").strip('\r\n'))
             cpu_frequencies.append(cpu_freq)
 
         return cpu_frequencies
