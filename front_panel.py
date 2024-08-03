@@ -31,8 +31,8 @@ class RunAndroidDiagnostics(QThread):
         """Thread runner method"""
         android_cpu_diagnostics = AndroidCpuDiagnostics(self.serial_number)
         android_cpu_diagnostics.run_cpu_diagnostics()
-        android_wifi_diagnostics = WifiDiagnostics(self.serial_number)
-        android_wifi_diagnostics.wifi_level_one_diagnostics()
+        # android_wifi_diagnostics = WifiDiagnostics(self.serial_number)
+        # android_wifi_diagnostics.wifi_level_one_diagnostics()
 
 
 class GeekBenchFive(QThread):
@@ -68,7 +68,7 @@ class AndroidDiagFrontPanel(QWidget):
         self.diagnostic_tab.layout = QGridLayout()
         self.diagnostic_tab_sub_layout = QVBoxLayout()
         self.battery_diagnostics_button = QPushButton("Battery Diagnostics")
-        self.disable_wifi_radio_button = QPushButton("Disiable Wifi")
+        self.disable_wifi_radio_button = QPushButton("Disable Wifi")
         self.enable_wifi_radio_button = QPushButton("Enable Wifi")
         self.enable_nfc_button = QPushButton("Enable NFC")
         self.disable_nfc_button = QPushButton("Disable NFC")

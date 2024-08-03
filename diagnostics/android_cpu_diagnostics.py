@@ -1,6 +1,11 @@
 # Local Imports
+import csv
 from android_devices.adb_interface import AdbInterface
 from constants import *
+
+
+# Third Part Imports
+import pandas as pd
 
 class AndroidCpuDiagnostics:
     """Android CPU Diagnostics class"""
@@ -17,9 +22,11 @@ class AndroidCpuDiagnostics:
         cpu_frequencies = self.adb_interface.get_cpu_frequencies()
         cpu_clock_diag_results = self.evaluate_cpu_clock_speed_diagnostics(cpu_frequencies)
         cpu_temp_diag_results = self.evaluate_cpu_temperatures(cpu_temperatures)
+        self.generate_cpu_diagnostic_test_report(cpu_temp_diag_results)
 
         print(cpu_clock_diag_results)
         print(cpu_temp_diag_results)
+
 
     def evaluate_cpu_clock_speed_diagnostics(self, cpu_frequencies):
         """Method used to evaluate hardware diagnostics"""
@@ -67,3 +74,10 @@ class AndroidCpuDiagnostics:
                 cpu_test_results.append(cpu_temperature_test_status)
 
             return cpu_test_results
+
+    def generate_cpu_diagnostic_test_report(self, cpu_test_results):
+        """Method used to generate test report for CPU diagnostics"""
+        cpu_df = pd.DataFrame(cpu_test_results)
+        print(cpu_df)
+
+
