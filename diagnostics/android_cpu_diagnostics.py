@@ -2,11 +2,15 @@
 import csv
 import datetime
 import os
+import logging
 from android_devices.adb_interface import AdbInterface
 from constants import *
 
 # Third Part Imports
 import pandas as pd
+
+
+
 
 
 class AndroidCpuDiagnostics:
