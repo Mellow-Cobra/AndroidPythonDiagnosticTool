@@ -27,15 +27,14 @@ class AdbInterface:
 
     def get_wifi_status(self):
         """Method used to get status of WiFi from Android device"""
+        logger.info("Retrieving WiFi status")
         adb_shell = self.open_adb_shell()
         wifi_status, _ = adb_shell.communicate(b'dumpsys wifi | grep "Wi-Fi is"')
 
 
-        print(wifi_status.decode('utf-8'))
-
-
     def get_wifi_network_info(self):
         """Method used to get Wi-Fi network information"""
+        logger.info("Retrieving WiFi network information")
         adb_shell = self.open_adb_shell()
         wifi_net_info, _ = adb_shell.communicate(b'dumpsys wifi | grep "mNetworkInfo"')
 
@@ -131,12 +130,14 @@ class AdbInterface:
 
     def enable_super_user_mode(self):
         """Method used to enable super user mode"""
+        logger.info("Enabling super user mode")
         super_user_mode = subprocess.run(["adb", "-s", f"{self.serial_number}",
                                           "root"], capture_output=True)
         super_user_mode.stdout.decode("utf-8")
 
     def disable_wifi_service(self):
         """Method used to disable WiFi radio"""
+        logger.info("Disabling WiFi service")
         disabled_wifi = subprocess.run(["adb", "shell", "svc wifi disable"], capture_output=True)
 
         disabled_wifi = disabled_wifi.stdout.decode("utf-8")
@@ -145,6 +146,7 @@ class AdbInterface:
 
     def enable_wifi_service(self):
         """Method used to enable WiFi radio"""
+        logger.info("Enabling WiFi Service")
         enabled_wifi = subprocess.run(["adb", "shell", "svc wifi enable"], capture_output=True)
 
         enabled_wifi = enabled_wifi.stdout.decode("utf-8")
@@ -153,6 +155,7 @@ class AdbInterface:
 
     def enable_nfc_service(self):
         """Method used to enable NFC radio"""
+        logger.info("Enabling NFC service")
         enabled_nfc = subprocess.run(["adb", "shell", "svc nfc enable"])
 
         enabled_nfc = enabled_nfc.stdout.decode("utf-8")
@@ -161,6 +164,7 @@ class AdbInterface:
 
     def get_cpu_temperatures(self):
         """Method used to get CPU temperatures"""
+        logger.info("Retrieving CPU temperatures")
         temperatures = list()
         thermal_service = subprocess.run(["adb", "-s", f"{self.serial_number}",
                                           "shell", "dumpsys thermalservice", " | grep CPU"], capture_output=True)
@@ -179,6 +183,7 @@ class AdbInterface:
 
     def get_cpu_frequencies(self):
         """Method used to get CPU frequencies"""
+        logger.info("Retrieving current CPU frequencies")
         cpu_frequencies = list()
         available_cpus = subprocess.run(["adb", "-s", f"{self.serial_number}", "shell",
                                          "find", "/sys/devices/system/cpu/", "-name", "cpu[0-9]*"],
