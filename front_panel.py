@@ -1,12 +1,27 @@
+import os.path
+
+import datetime
+
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import  *
+import pathlib
+import logging.config
 import sys
+
 
 # Local Imports
 from android_devices.adb_interface import AdbInterface
 from diagnostics.android_cpu_diagnostics import AndroidCpuDiagnostics
 from diagnostics.android_wifi_diagnostics import WifiDiagnostics
 
+time_stamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
+log_name = f"C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs\\adt_log_{time_stamp}.log"
+
+if not os.path.exists('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs\\'):
+    os.mkdir('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs')
+logging.basicConfig(filename=log_name, level=logging.INFO)
+# logging.config.fileConfig('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs\\adt_log.log')
 
 class BatteryDiagnostics(QThread):
     """Class used to run battery diagnostics"""
@@ -146,6 +161,7 @@ class AndroidDiagFrontPanel(QWidget):
     def on_run_android_diagnostics(self):
         """Method used to spawn threads and test devices"""
         devices_to_test = self.android_serial_number_text_box.toPlainText().splitlines()
+
         for _, device in enumerate(devices_to_test):
             android_diagnostics_thread = RunAndroidDiagnostics(serial_number=device)
             android_diagnostics_thread.run()

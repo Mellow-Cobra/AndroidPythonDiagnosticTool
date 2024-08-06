@@ -1,9 +1,12 @@
 import glob
+import logging
 import subprocess
 import re
 
 # Local Imports
 from constants import *
+
+logger = logging.getLogger(__name__)
 
 class AdbInterface:
     """Class used to interface with Android Device over ADB"""
@@ -16,6 +19,7 @@ class AdbInterface:
 
     def open_adb_shell(self):
         """Method used to open adb shell"""
+
         adb_proc = subprocess.Popen(['adb', '-s', f'{self.serial_number}', 'shell'], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                     shell=False)
 
@@ -193,6 +197,7 @@ class AdbInterface:
 
     def get_cpu_max_speed(self):
         """Method used to get cpu max speed"""
+        logger.info("Capturing CPU maximum speed...")
         cpu_max_speeds = subprocess.run(["adb", "-s", f"{self.serial_number}",
                                         "shell", "cat", "/sys/devices/system/cpu/cpu[0-9]*/cpufreq/cpuinfo_max_freq"],
                                        capture_output=True)
@@ -202,6 +207,7 @@ class AdbInterface:
 
     def get_cpu_min_speed(self):
         """Method used to get cpu min speed"""
+        logger.info("Capturing minimum CPU speeds...")
         cpu_min_speeds = subprocess.run(["adb", "-s", f"{self.serial_number}",
                                          "shell", "cat", "/sys/devices/system/cpu/cpu[0-9]*/cpufreq/cpuinfo_min_freq"],
                                         capture_output=True )
@@ -210,8 +216,13 @@ class AdbInterface:
         return cpu_min_speeds
     def get_available_devices(self):
         """Method used to get available devices"""
-        adb_devices = subprocess.run(["adb", "devices"], capture_output=True)
-        adb_devices = adb_devices.stdout.decode("utf-8").splitlines()
+        logger.info("Finding all Android devices connected to PC")
+        try:
+            adb_devices = subprocess.run(["adb", "devices"], capture_output=True)
+            adb_devices = adb_devices.stdout.decode("utf-8").splitlines()
+        except FileNotFoundError as error:
+            logger.info(error)
+            logger.info('Install ADB Drivers')
         del adb_devices[0]
         del adb_devices[-1]
         serial_numbers = list()
