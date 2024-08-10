@@ -4,6 +4,10 @@ MHZ = "MHz"
 CELSIUS = "Celsius"
 
 
+# Platform
+LINUX = 'Linux'
+WIN = 'Windows'
+
 # Results
 PASS = 'pass'
 FAIL = 'fail'

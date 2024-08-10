@@ -4,7 +4,7 @@ import datetime
 
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import  *
-import pathlib
+import platform
 import logging.config
 import sys
 
@@ -13,13 +13,18 @@ import sys
 from android_devices.adb_interface import AdbInterface
 from diagnostics.android_cpu_diagnostics import AndroidCpuDiagnostics
 from diagnostics.android_wifi_diagnostics import WifiDiagnostics
+from constants import *
 
 time_stamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
 log_name = f"C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs\\adt_log_{time_stamp}.log"
 
-if not os.path.exists('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs\\'):
-    os.mkdir('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs')
+if platform.system() == LINUX:
+    if not os.path.exists('/tmp/android_logs'):
+        os.mkdir('/tmp/android_logs')
+elif platform.system() == WIN:
+    if not os.path.exists('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs\\'):
+        os.mkdir('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs')
 logging.basicConfig(filename=log_name, level=logging.INFO)
 # logging.config.fileConfig('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs\\adt_log.log')
 
@@ -40,6 +45,7 @@ class RunAndroidDiagnostics(QThread):
 
     def __init__(self, serial_number):
         """Constructor"""
+        super().__init__()
         self.serial_number = serial_number
 
     def run(self):
@@ -116,17 +122,27 @@ class AndroidDiagFrontPanel(QWidget):
 
         # Configuration Tab Layout
         self.configuration_tab.layout = QGridLayout()
-        self.configuration_tab_sub_layout = QVBoxLayout()
+        self.configuration_tab_sub_layout_one = QVBoxLayout()
+        self.configuration_tab_sub_layout_two = QVBoxLayout()
+        self.configuration_tab_sub_layout_three = QGridLayout()
         self.android_phone_serial_number_label = QLabel("Devices to Test Serial Numbers")
         self.android_phone_serial_number = QLineEdit("Separate by comma")
+        self.android_diagnostics_configuration_label = QLabel("Configuration File Path")
+        self.android_diagnostics_configuration = QLineEdit("Configuration File Path")
         self.get_android_device_serial_number_button = QPushButton("Get Available Devices")
+        self.get_configuration_file_button = QPushButton("Load Config")
         self.android_serial_number_text_box = QTextEdit("Available Device Serial Numbers")
-        self.configuration_tab_sub_layout.addWidget(self.get_android_device_serial_number_button)
-        self.configuration_tab_sub_layout.addWidget(self.android_serial_number_text_box)
+        self.configuration_tab_sub_layout_two.addWidget(self.get_android_device_serial_number_button)
+        self.configuration_tab_sub_layout_two.addWidget(self.android_serial_number_text_box)
         self.get_android_device_serial_number_button.clicked.connect(self.get_available_devices_serial_numbers)
-        self.configuration_tab.layout.addWidget(self.android_phone_serial_number_label, 0, 0)
-        self.configuration_tab.layout.addWidget(self.android_phone_serial_number, 0, 1)
-        self.configuration_tab.layout.addLayout(self.configuration_tab_sub_layout, 0, 2)
+        self.configuration_tab_sub_layout_three.addWidget(self.android_diagnostics_configuration_label, 0 , 0)
+        self.configuration_tab_sub_layout_three.addWidget(self.android_diagnostics_configuration, 0, 1)
+        self.configuration_tab_sub_layout_three.addWidget(self.get_configuration_file_button, 1, 0, 1, 2)
+        self.configuration_tab_sub_layout_three.addWidget(self.android_phone_serial_number_label, 2, 0)
+        self.configuration_tab_sub_layout_three.addWidget(self.android_phone_serial_number, 2, 1)
+        self.configuration_tab_sub_layout_one.addLayout(self.configuration_tab_sub_layout_three)
+        self.configuration_tab.layout.addLayout(self.configuration_tab_sub_layout_one, 0, 0)
+        self.configuration_tab.layout.addLayout(self.configuration_tab_sub_layout_two, 0, 1)
         self.configuration_tab.setLayout(self.configuration_tab.layout)
 
         # Event listeners for diagnostics tab
