@@ -1,0 +1,10 @@
+{
+  "android_settings":{
+    "devices": ["375010008142000055"]
+},
+  "diagnostics": {
+    "cpu": true,
+    "gpu": false,
+    "wifi": false
+  }
+}
