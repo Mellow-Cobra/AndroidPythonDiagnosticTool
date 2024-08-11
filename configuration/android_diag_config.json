@@ -1,6 +1,6 @@
 {
   "android_settings":{
-    "devices": ["375010008142000055", "375010008142000055"]
+    "android_devices": ["375010008142000055", "375010008142000055"]
 },
   "test_settings": {
     "test_results": "/home/tester/results"
@@ -8,6 +8,7 @@
   "diagnostics": {
     "cpu": true,
     "gpu": false,
-    "wifi": false
+    "wifi": false,
+    "battery": false
   }
 }
