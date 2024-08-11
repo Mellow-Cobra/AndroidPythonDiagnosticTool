@@ -15,6 +15,9 @@ FAIL = 'fail'
 # Configuration
 TEST_SETTINGS = "test_settings"
 TEST_RESULTS = "test_results"
+ANDROID_SETTINGS = "android_settings"
+ANDROID_DEVICES = "android_devices"
+
 
 
 

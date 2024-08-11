@@ -32,13 +32,15 @@ logging.basicConfig(filename=log_name, level=logging.INFO)
 class BatteryDiagnostics(QThread):
     """Class used to run battery diagnostics"""
 
-    def __init__(self, serial_number):
+    def __init__(self, serial_number, configuration):
         """Constructor"""
+        super().__init__()
         self.serial_number = serial_number
+        self.configuration = configuration
 
     def run(self):
         """Thread runner method for battery diagnostics"""
-        battery_diag = AdbInterface()
+        battery_diag = AdbInterface(serial_number=self.serial_number)
         battery_diag.get_battery_level()
 
 
@@ -77,6 +79,7 @@ class AndroidDiagFrontPanel(QWidget):
         self.setWindowTitle("Android Diagnostic Tool")
         self.setFixedSize(1024, 768)
         self.main_layout = QVBoxLayout()
+        self.serial_numbers = None
         self.config_file = None
 
         # Create Tabs
@@ -90,7 +93,9 @@ class AndroidDiagFrontPanel(QWidget):
 
         # Diagnostic Tab Layout
         self.diagnostic_tab.layout = QGridLayout()
-        self.diagnostic_tab_sub_layout = QVBoxLayout()
+        self.diagnostic_tab_sub_layout_one = QVBoxLayout()
+        self.diagnostic_tab_sub_layout_two = QVBoxLayout()
+        self.diagnostic_tab_sub_layout_three = QVBoxLayout()
         self.battery_diagnostics_button = QPushButton("Battery Diagnostics")
         self.disable_wifi_radio_button = QPushButton("Disable Wifi")
         self.enable_wifi_radio_button = QPushButton("Enable Wifi")
@@ -99,15 +104,16 @@ class AndroidDiagFrontPanel(QWidget):
         self.super_user_mode_button = QPushButton("Super User Mode")
         self.run_android_diagnostics_button = QPushButton("Run Android Diagnostics")
         self.diagnostic_text_box = QTextEdit()
-        self.diagnostic_tab_sub_layout.addWidget(self.battery_diagnostics_button)
-        self.diagnostic_tab_sub_layout.addWidget(self.disable_wifi_radio_button)
-        self.diagnostic_tab_sub_layout.addWidget(self.enable_wifi_radio_button)
-        self.diagnostic_tab_sub_layout.addWidget(self.enable_nfc_button)
-        self.diagnostic_tab_sub_layout.addWidget(self.disable_nfc_button)
-        self.diagnostic_tab_sub_layout.addWidget(self.super_user_mode_button)
-        self.diagnostic_tab_sub_layout.addWidget(self.diagnostic_text_box)
-        self.diagnostic_tab_sub_layout.addWidget(self.run_android_diagnostics_button)
-        self.diagnostic_tab.layout.addLayout(self.diagnostic_tab_sub_layout, 0, 0)
+        self.diagnostic_tab_sub_layout_one.addWidget(self.disable_wifi_radio_button)
+        self.diagnostic_tab_sub_layout_one.addWidget(self.enable_wifi_radio_button)
+        self.diagnostic_tab_sub_layout_one.addWidget(self.enable_nfc_button)
+        self.diagnostic_tab_sub_layout_one.addWidget(self.disable_nfc_button)
+        self.diagnostic_tab_sub_layout_one.addWidget(self.super_user_mode_button)
+        self.diagnostic_tab_sub_layout_two.addWidget(self.battery_diagnostics_button)
+        self.diagnostic_tab_sub_layout_two.addWidget(self.run_android_diagnostics_button)
+        #self.diagnostic_tab_sub_layout_three.addWidget(self.diagnostic_text_box)
+        self.diagnostic_tab.layout.addLayout(self.diagnostic_tab_sub_layout_one, 0, 0)
+        self.diagnostic_tab.layout.addLayout(self.diagnostic_tab_sub_layout_two, 0, 1)
         self.diagnostic_tab.setLayout(self.diagnostic_tab.layout)
 
         # Diagnostic Button Connections
@@ -158,8 +164,10 @@ class AndroidDiagFrontPanel(QWidget):
 
     def on_run_battery_diagnostics(self):
         """Event handler for battery diagnostics"""
-        battery_diagnostics = BatteryDiagnostics()
-        battery_diagnostics.run()
+        for _, device_serial in enumerate(self.serial_numbers):
+            battery_diagnostics = BatteryDiagnostics(serial_number=self.serial_numbers,
+                                                     configuration=self.config_file)
+            battery_diagnostics.run()
 
     def run_geekbench_five(self):
         """Event handler used to GeekBench 5"""
@@ -167,6 +175,7 @@ class AndroidDiagFrontPanel(QWidget):
 
     def on_enable_wifi(self):
         """Event handler for enabling WiFi"""
+
 
     def get_available_devices_serial_numbers(self):
         """Event handler for finding serial numbers"""
@@ -178,7 +187,7 @@ class AndroidDiagFrontPanel(QWidget):
 
     def on_run_android_diagnostics(self):
         """Method used to spawn threads and test devices"""
-        for _, device_serial in enumerate(self.config_file["android_settings"]["devices"]):
+        for _, device_serial in enumerate(self.serial_numbers):
             android_diagnostics_thread = RunAndroidDiagnostics(serial_number=device_serial,
                                                                configuration=self.config_file)
             android_diagnostics_thread.run()
@@ -188,7 +197,7 @@ class AndroidDiagFrontPanel(QWidget):
         config_file_path = str(self.android_diagnostics_configuration.text())
         with open(config_file_path, mode='r', encoding='utf-8') as config_file:
             self.config_file = json.load(config_file)
-
+        self.serial_numbers = self.config_file[ANDROID_SETTINGS][ANDROID_DEVICES]
 
 
 
