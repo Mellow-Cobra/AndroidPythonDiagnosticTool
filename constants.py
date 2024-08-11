@@ -12,6 +12,10 @@ WIN = 'Windows'
 PASS = 'pass'
 FAIL = 'fail'
 
+# Configuration
+TEST_SETTINGS = "test_settings"
+TEST_RESULTS = "test_results"
+
 
 
 # CPU Diagnostic Limits

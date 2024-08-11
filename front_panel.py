@@ -1,13 +1,12 @@
 import os.path
-
+import json
 import datetime
 
 from PyQt6.QtWidgets import *
-from PyQt6.QtCore import  *
+from PyQt6.QtCore import *
 import platform
 import logging.config
 import sys
-
 
 # Local Imports
 from android_devices.adb_interface import AdbInterface
@@ -26,6 +25,8 @@ elif platform.system() == WIN:
     if not os.path.exists('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs\\'):
         os.mkdir('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs')
 logging.basicConfig(filename=log_name, level=logging.INFO)
+
+
 # logging.config.fileConfig('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs\\adt_log.log')
 
 class BatteryDiagnostics(QThread):
@@ -40,17 +41,19 @@ class BatteryDiagnostics(QThread):
         battery_diag = AdbInterface()
         battery_diag.get_battery_level()
 
+
 class RunAndroidDiagnostics(QThread):
     """Thread class used to run cpu diagnostics"""
 
-    def __init__(self, serial_number):
+    def __init__(self, serial_number, configuration):
         """Constructor"""
         super().__init__()
         self.serial_number = serial_number
+        self.configuration = configuration
 
     def run(self):
         """Thread runner method"""
-        android_cpu_diagnostics = AndroidCpuDiagnostics(self.serial_number)
+        android_cpu_diagnostics = AndroidCpuDiagnostics(self.serial_number, self.configuration)
         android_cpu_diagnostics.run_cpu_diagnostics()
         # android_wifi_diagnostics = WifiDiagnostics(self.serial_number)
         # android_wifi_diagnostics.wifi_level_one_diagnostics()
@@ -74,6 +77,7 @@ class AndroidDiagFrontPanel(QWidget):
         self.setWindowTitle("Android Diagnostic Tool")
         self.setFixedSize(1024, 768)
         self.main_layout = QVBoxLayout()
+        self.config_file = None
 
         # Create Tabs
         tabs = QTabWidget()
@@ -83,7 +87,6 @@ class AndroidDiagFrontPanel(QWidget):
         tabs.addTab(self.diagnostic_tab, "Diagnostics Tab")
         tabs.addTab(self.benchmark_tab, "Benchmark Tab")
         tabs.addTab(self.configuration_tab, "Configuration Tab")
-
 
         # Diagnostic Tab Layout
         self.diagnostic_tab.layout = QGridLayout()
@@ -119,7 +122,6 @@ class AndroidDiagFrontPanel(QWidget):
         self.benchmark_tab.layout.addLayout(self.bench_mark_tab_sub_layout, 0, 0)
         self.benchmark_tab.setLayout(self.benchmark_tab.layout)
 
-
         # Configuration Tab Layout
         self.configuration_tab.layout = QGridLayout()
         self.configuration_tab_sub_layout_one = QVBoxLayout()
@@ -130,14 +132,15 @@ class AndroidDiagFrontPanel(QWidget):
         self.android_diagnostics_configuration_label = QLabel("Configuration File Path")
         self.android_diagnostics_configuration = QLineEdit("Configuration File Path")
         self.get_android_device_serial_number_button = QPushButton("Get Available Devices")
-        self.get_configuration_file_button = QPushButton("Load Config")
+        self.load_configuration_file_button = QPushButton("Load Config")
         self.android_serial_number_text_box = QTextEdit("Available Device Serial Numbers")
         self.configuration_tab_sub_layout_two.addWidget(self.get_android_device_serial_number_button)
         self.configuration_tab_sub_layout_two.addWidget(self.android_serial_number_text_box)
         self.get_android_device_serial_number_button.clicked.connect(self.get_available_devices_serial_numbers)
-        self.configuration_tab_sub_layout_three.addWidget(self.android_diagnostics_configuration_label, 0 , 0)
+        self.load_configuration_file_button.clicked.connect(self.load_configuration_file)
+        self.configuration_tab_sub_layout_three.addWidget(self.android_diagnostics_configuration_label, 0, 0)
         self.configuration_tab_sub_layout_three.addWidget(self.android_diagnostics_configuration, 0, 1)
-        self.configuration_tab_sub_layout_three.addWidget(self.get_configuration_file_button, 1, 0, 1, 2)
+        self.configuration_tab_sub_layout_three.addWidget(self.load_configuration_file_button, 1, 0, 1, 2)
         self.configuration_tab_sub_layout_three.addWidget(self.android_phone_serial_number_label, 2, 0)
         self.configuration_tab_sub_layout_three.addWidget(self.android_phone_serial_number, 2, 1)
         self.configuration_tab_sub_layout_one.addLayout(self.configuration_tab_sub_layout_three)
@@ -147,8 +150,6 @@ class AndroidDiagFrontPanel(QWidget):
 
         # Event listeners for diagnostics tab
         self.battery_diagnostics_button.clicked.connect(self.on_run_battery_diagnostics)
-        
-
 
         self.main_layout.addWidget(tabs)
         self.setLayout(self.main_layout)
@@ -159,6 +160,7 @@ class AndroidDiagFrontPanel(QWidget):
         """Event handler for battery diagnostics"""
         battery_diagnostics = BatteryDiagnostics()
         battery_diagnostics.run()
+
     def run_geekbench_five(self):
         """Event handler used to GeekBench 5"""
         geek_bench_thread = GeekBenchFive()
@@ -176,11 +178,17 @@ class AndroidDiagFrontPanel(QWidget):
 
     def on_run_android_diagnostics(self):
         """Method used to spawn threads and test devices"""
-        devices_to_test = self.android_serial_number_text_box.toPlainText().splitlines()
-
-        for _, device in enumerate(devices_to_test):
-            android_diagnostics_thread = RunAndroidDiagnostics(serial_number=device)
+        for _, device_serial in enumerate(self.config_file["android_settings"]["devices"]):
+            android_diagnostics_thread = RunAndroidDiagnostics(serial_number=device_serial,
+                                                               configuration=self.config_file)
             android_diagnostics_thread.run()
+
+    def load_configuration_file(self):
+        """Method used to load configuration file"""
+        config_file_path = str(self.android_diagnostics_configuration.text())
+        with open(config_file_path, mode='r', encoding='utf-8') as config_file:
+            self.config_file = json.load(config_file)
+
 
 
 

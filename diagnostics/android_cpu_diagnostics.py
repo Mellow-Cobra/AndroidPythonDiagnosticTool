@@ -16,9 +16,10 @@ import pandas as pd
 class AndroidCpuDiagnostics:
     """Android CPU Diagnostics class"""
 
-    def __init__(self, serial_number):
+    def __init__(self, serial_number, configuration):
         """Constructor"""
         self.adb_interface = AdbInterface(serial_number)
+        self.configuration = configuration
         self.test_results = []
 
     def run_cpu_diagnostics(self):
@@ -61,7 +62,7 @@ class AndroidCpuDiagnostics:
     def generate_cpu_diagnostic_test_report(self):
         """Method used to generate test report for CPU diagnostics"""
         time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
-        os.chdir('C:\\Users\\inter\\OneDrive\\Documents\\Results')
+        os.chdir(self.configuration[TEST_SETTINGS][TEST_RESULTS])
         with open(f'{time_stamp}.csv', mode='w', newline='') as file:
             csv_writer = csv.writer(file)
             csv_writer.writerows(self.test_results)
