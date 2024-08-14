@@ -21,9 +21,9 @@ class WifiDiagnostics():
 
         self.adb_interface.get_wifi_network_info()
         self.adb_interface.get_wifi_internet_status()
-        self.adb_interface.run_ping_test()
-        self.adb_interface.get_wifi_station_ssid()
-        self.adb_interface.get_signal_strength()
+        #self.adb_interface.run_ping_test()
+        #self.adb_interface.get_wifi_station_ssid()
+        #self.adb_interface.get_signal_strength()
 
     def verify_wifi_radio(self):
         """Method used to verify wifi radio functionality"""
