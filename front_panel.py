@@ -57,8 +57,8 @@ class RunAndroidDiagnostics(QThread):
         """Thread runner method"""
         android_cpu_diagnostics = AndroidCpuDiagnostics(self.serial_number, self.configuration)
         android_cpu_diagnostics.run_cpu_diagnostics()
-        android_wifi_diagnostics = WifiDiagnostics(self.serial_number)
-        android_wifi_diagnostics.wifi_level_one_diagnostics()
+        android_wifi_diagnostics = WifiDiagnostics(self.serial_number, self.configuration)
+        android_wifi_diagnostics.run_wifi_diagnostics()
 
 
 class GeekBenchFive(QThread):
