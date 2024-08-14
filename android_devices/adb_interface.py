@@ -47,9 +47,6 @@ class AdbInterface:
         return wifi_net_info[0].split(" ")[4].strip(',')
 
 
-
-        # return wifi_net_info[2]
-
     def get_wifi_internet_status(self):
         """Method used to determine if android device can connect to internet over wifi"""
         wifi_internet_info, _ = adb_shell.communicate(b'dumpsys connectivity')
