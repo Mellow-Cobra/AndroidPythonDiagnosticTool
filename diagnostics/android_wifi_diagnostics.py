@@ -49,7 +49,7 @@ class WifiDiagnostics():
         os.chdir(self.configuration[TEST_SETTINGS][TEST_RESULTS])
         with open(f'wifi_diagnostics_{self.device_serial}_{time_stamp}.csv', mode='w', newline='') as file:
             csv_writer = csv.writer(file)
-            csv_writer.writerow(self.wifi_diag_level_one_results)
+            csv_writer.writerows(self.wifi_diag_level_one_results)
 
 if __name__ == '''__main__''':
     w = WifiDiagnostics(serial_number=375010008142000055)
