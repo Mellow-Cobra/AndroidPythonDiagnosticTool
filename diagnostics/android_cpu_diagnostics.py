@@ -19,6 +19,7 @@ class AndroidCpuDiagnostics:
     def __init__(self, serial_number, configuration):
         """Constructor"""
         self.adb_interface = AdbInterface(serial_number)
+        self.serial_number = serial_number
         self.configuration = configuration
         self.test_results = []
 
@@ -63,6 +64,6 @@ class AndroidCpuDiagnostics:
         """Method used to generate test report for CPU diagnostics"""
         time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
         os.chdir(self.configuration[TEST_SETTINGS][TEST_RESULTS])
-        with open(f'{time_stamp}.csv', mode='w', newline='') as file:
+        with open(f'cpu_diagnostics_{self.serial_number}_{time_stamp}.csv', mode='w', newline='') as file:
             csv_writer = csv.writer(file)
             csv_writer.writerows(self.test_results)

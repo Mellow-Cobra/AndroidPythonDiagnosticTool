@@ -21,7 +21,7 @@ ANDROID_DEVICES = "android_devices"
 
 
 
-# CPU Diagnostic Limits
+# CPU Diagnostic Constants
 MAX_TEMPERATURE_LIMIT_C = 75.0
 MIN_TEMPERATURE_LIMIT = 18.0
 CPU_THROTTLE_OT = "cpu_throttle_overtemp"
@@ -35,4 +35,7 @@ CPU_TEMPERATURE_DIAGNOSTIC_HEADER = ['CPU', 'MAX_TEMPERATURE_LIMIT_C', 'TEMPERAT
                                      'UNITS', 'DIAGNOSTIC_STATUS', 'DIAGNOSTIC_TEST_RESULT']
 CPU_FREQUENCY_DIAGNOSTIC_HEADER = ['CPU', 'MIN_FREQUENCY', 'FREQUENCY_READOUT', 'MAX_FREQUENCY', 'UNITS',
                                    'DIAGNOSTIC_STATUS', 'DIAGNOSTIC_TEST_RESULT']
+
+# Wi-Fi Diagnostic Constants
+WIFI_DIAG_HEADER = ['Wi-Fi_Radio_Status', "Network Status"]
 
