@@ -29,20 +29,24 @@ class AdbInterface:
         """Method used to get status of WiFi from Android device"""
         logger.info("Retrieving WiFi status")
         adb_shell = self.open_adb_shell()
-        wifi_status, _ = adb_shell.communicate(b'dumpsys wifi | grep "Wi-Fi is"')
+        wifi_status = adb_shell.communicate(b'dumpsys wifi | grep "Wi-Fi is"')
+        wifi_status
 
 
     def get_wifi_network_info(self):
         """Method used to get Wi-Fi network information"""
         logger.info("Retrieving WiFi network information")
-        adb_shell = self.open_adb_shell()
-        wifi_net_info, _ = adb_shell.communicate(b'dumpsys wifi | grep "mNetworkInfo"')
 
-        print(wifi_net_info.decode('utf-8'))
+        wifi_net_info = subprocess.run(['adb', '-s', f'{self.serial_number}', 'shell', 'dumpsys wifi','| grep  mNetworkInfo'], capture_output=True)
+
+        wifi_net_info = wifi_net_info.stdout.decode('utf-8').splitlines()
+
+
+
+        # return wifi_net_info[2]
 
     def get_wifi_internet_status(self):
         """Method used to determine if android device can connect to internet over wifi"""
-        adb_shell = self.open_adb_shell()
         wifi_internet_info, _ = adb_shell.communicate(b'dumpsys connectivity')
         print(wifi_internet_info)
 
