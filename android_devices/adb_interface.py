@@ -25,7 +25,7 @@ class AdbInterface:
 
         return adb_proc
 
-    def get_wifi_radio_status(self):
+    def get_wifi_status(self):
         """Method used to get status of WiFi from Android device"""
         logger.info("Retrieving WiFi status")
         wifi_status = subprocess.run(['adb', '-s', f'{self.serial_number}', 'shell', 'dumpsys wifi', ' | grep "Wi-Fi is"'],
@@ -44,7 +44,7 @@ class AdbInterface:
 
         wifi_net_info = wifi_net_info.stdout.decode('utf-8').splitlines()
 
-        return wifi_net_info[0].split(" ")[4].strip(',')
+        print((wifi_net_info[0].split(" ")[4].strip(',')))
 
 
 
