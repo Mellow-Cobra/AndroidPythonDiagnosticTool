@@ -33,8 +33,9 @@ class WifiDiagnostics():
         wifi_radio_status = self.adb_interface.get_wifi_radio_status()
         wifi_network_status = self.adb_interface.get_wifi_network_info()
         wifi_ssid = self.adb_interface.get_wifi_station_ssid()
-        #self.adb_interface.get_signal_strength()
-        self.wifi_diag_level_one_results.append([wifi_radio_status, wifi_network_status, wifi_ssid])
+        wifi_signal_strength = self.adb_interface.get_signal_strength()
+        self.wifi_diag_level_one_results.append([wifi_radio_status, wifi_network_status, wifi_ssid,
+                                                 wifi_signal_strength])
 
     def verify_wifi_radio(self):
         """Method used to verify wifi radio functionality"""
