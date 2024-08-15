@@ -100,9 +100,11 @@ class AdbInterface:
     def get_wifi_station_ssid(self):
         """Get Wi-Fi service set indentifier"""
         adb_shell = self.open_adb_shell()
-        wifi_ssid, _ = adb_shell.communicate(b'iw wlan0 info | grep ssid')
+        wifi_ssid = subprocess.run(["adb", "-s", f"{self.serial_number}", "shell", "iw wlan0 info | grep ssid"],
+                                   capture_output=True)
+        wifi_ssid = wifi_ssid.stdout.decode("utf-8").split(" ")
 
-        print(wifi_ssid)
+        return wifi_ssid[1]
 
     def get_signal_strength(self):
         """Get Wi-Fi singal strength"""
