@@ -102,6 +102,7 @@ class AdbInterface:
         adb_shell = self.open_adb_shell()
         wifi_ssid = subprocess.run(["adb", "-s", f"{self.serial_number}", "shell", "iw wlan0 info | grep ssid"],
                                    capture_output=True)
+
         wifi_ssid = wifi_ssid.stdout.decode("utf-8").split(" ")
 
         return wifi_ssid[1]
@@ -109,9 +110,20 @@ class AdbInterface:
     def get_signal_strength(self):
         """Get Wi-Fi singal strength"""
         adb_shell = self.open_adb_shell()
-        wifi_signal_strength, _ = adb_shell.communicate(b'iw dev wlan0 link | grep signal')
+        wifi_signal_strength = subprocess.run(["adb", "-s", f"{self.serial_number}", "shell",
+                                                    "iw dev wlan0 link | grep signal"], capture_output=True)
 
-        print(wifi_signal_strength)
+        wifi_signal_strength = wifi_signal_strength.stdout.decode("utf-8")
+
+        wifi_signal_regex = r"\s\-([0-9])*\s\bdBm\b"
+
+        match = re.search(pattern=wifi_signal_regex, string=wifi_signal_strength)
+        if match:
+            wifi_signal_strength = match.group()
+        else:
+            wifi_signal_strength = NOT_AVAILABLE
+
+        return wifi_signal_strength
 
     def disconnect_from_wifi(self):
         """Method used to disconnect from wifi"""

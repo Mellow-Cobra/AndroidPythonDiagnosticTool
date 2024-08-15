@@ -37,5 +37,5 @@ CPU_FREQUENCY_DIAGNOSTIC_HEADER = ['CPU', 'MIN_FREQUENCY', 'FREQUENCY_READOUT', 
                                    'DIAGNOSTIC_STATUS', 'DIAGNOSTIC_TEST_RESULT']
 
 # Wi-Fi Diagnostic Constants
-WIFI_DIAG_HEADER = ['Wi-Fi_Radio_Status', "Network Status", "ssid"]
+WIFI_DIAG_HEADER = ['Wi-Fi_Radio_Status', "Network_Status", "ssid", "signal_strength"]
 
