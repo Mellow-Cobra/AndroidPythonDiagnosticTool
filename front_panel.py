@@ -122,10 +122,14 @@ class AndroidDiagFrontPanel(QWidget):
 
         # Benchmark Tab Layout
         self.benchmark_tab.layout = QGridLayout()
-        self.bench_mark_tab_sub_layout = QVBoxLayout()
+        self.bench_mark_tab_sub_layout_gfx = QHBoxLayout()
+        self.run_trex_bench_mark_button = QPushButton("Run Trex")
+        self.run_egypt_bench_mark_button = QPushButton("Run Egypt")
         self.run_geekbench_five = QPushButton("GeekBench 5")
-        self.bench_mark_tab_sub_layout.addWidget(self.run_geekbench_five)
-        self.benchmark_tab.layout.addLayout(self.bench_mark_tab_sub_layout, 0, 0)
+        self.bench_mark_tab_sub_layout_gfx.addWidget(self.run_trex_bench_mark_button)
+        self.bench_mark_tab_sub_layout_gfx.addWidget(self.run_egypt_bench_mark_button)
+        self.bench_mark_tab_sub_layout_gfx.addWidget(self.run_trex_bench_mark_button)
+        self.benchmark_tab.layout.addLayout(self.bench_mark_tab_sub_layout_gfx, 0, 0)
         self.benchmark_tab.setLayout(self.benchmark_tab.layout)
 
         # Configuration Tab Layout
