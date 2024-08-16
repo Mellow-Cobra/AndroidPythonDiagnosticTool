@@ -18,7 +18,7 @@ class GFXBench:
     def launch_gfx_bench(self):
         """Method used to launch GFX Bench"""
         subprocess.run(["adb", "shell", "am", "start",
-                        "-n", "net.kishonti.gfxbench.vulkan.v50000.corporate/.FeatureActivity"])
+                        "-n", "net.kishonti.gfxbench.vulkan.v50000.corporate/net.kishonti.benchui.BenchTestActivity"])
 
     def run_trex_benchmark(self):
         """Method used to run trex benchmark"""
