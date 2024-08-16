@@ -1,6 +1,6 @@
 {
   "android_settings":{
-    "android_devices": ["375010008142000055", "375010008142000055"]
+    "android_devices": ["375010008142000055"]
 },
   "test_settings": {
     "test_results": "/home/tester/results"

@@ -8,6 +8,8 @@ import platform
 import logging.config
 import sys
 
+from yaml import serialize
+
 # Local Imports
 from android_devices.adb_interface import AdbInterface
 from diagnostics.android_cpu_diagnostics import AndroidCpuDiagnostics
@@ -56,6 +58,7 @@ class RunTrexOnScreen(QThread):
     def run(self):
         """Thread runner method for T-Rex on screen"""
         gfx_bench_five = GFXBench(serial_number=self.serial_number, configuration=self.configuration)
+        gfx_bench_five.launch_gfx_bench()
         gfx_bench_five.run_trex_benchmark()
 
 
@@ -215,7 +218,8 @@ class AndroidDiagFrontPanel(QWidget):
     def run_trex_on_screen(self):
         """Method used to run T-Rex on screen"""
         for _, device_serial in enumerate(self.serial_numbers):
-            android_trex_thread = RunTrexOnScreen
+            android_trex_thread = RunTrexOnScreen(serial_number=device_serial, configuration=self.config_file)
+            android_trex_thread.run()
 
     def load_configuration_file(self):
         """Method used to load configuration file"""
