@@ -8,10 +8,13 @@ import platform
 import logging.config
 import sys
 
+from yaml import serialize
+
 # Local Imports
 from android_devices.adb_interface import AdbInterface
 from diagnostics.android_cpu_diagnostics import AndroidCpuDiagnostics
 from diagnostics.android_wifi_diagnostics import WifiDiagnostics
+from benchmark_routines.gfx_bench_five import GFXBench
 from constants import *
 
 time_stamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
@@ -42,6 +45,21 @@ class BatteryDiagnostics(QThread):
         """Thread runner method for battery diagnostics"""
         battery_diag = AdbInterface(serial_number=self.serial_number)
         battery_diag.get_battery_level()
+
+class RunTrexOnScreen(QThread):
+    """Class used to run Trex On Screen"""
+
+    def __init__(self, serial_number, configuration):
+        """Constructor"""
+        super().__init__()
+        self.serial_number = serial_number
+        self.configuration = configuration
+
+    def run(self):
+        """Thread runner method for T-Rex on screen"""
+        gfx_bench_five = GFXBench(serial_number=self.serial_number, configuration=self.configuration)
+        gfx_bench_five.launch_gfx_bench()
+        gfx_bench_five.run_trex_benchmark()
 
 
 class RunAndroidDiagnostics(QThread):
@@ -123,9 +141,10 @@ class AndroidDiagFrontPanel(QWidget):
         # Benchmark Tab Layout
         self.benchmark_tab.layout = QGridLayout()
         self.bench_mark_tab_sub_layout_gfx = QHBoxLayout()
-        self.run_trex_bench_mark_button = QPushButton("Run Trex")
+        self.run_trex_bench_mark_button = QPushButton("Run Trex On Screen")
         self.run_egypt_bench_mark_button = QPushButton("Run Egypt")
         self.run_geekbench_five = QPushButton("GeekBench 5")
+        self.run_trex_bench_mark_button.clicked.connect(self.run_trex_on_screen)
         self.bench_mark_tab_sub_layout_gfx.addWidget(self.run_trex_bench_mark_button)
         self.bench_mark_tab_sub_layout_gfx.addWidget(self.run_egypt_bench_mark_button)
         self.bench_mark_tab_sub_layout_gfx.addWidget(self.run_trex_bench_mark_button)
@@ -195,6 +214,12 @@ class AndroidDiagFrontPanel(QWidget):
             android_diagnostics_thread = RunAndroidDiagnostics(serial_number=device_serial,
                                                                configuration=self.config_file)
             android_diagnostics_thread.run()
+
+    def run_trex_on_screen(self):
+        """Method used to run T-Rex on screen"""
+        for _, device_serial in enumerate(self.serial_numbers):
+            android_trex_thread = RunTrexOnScreen(serial_number=device_serial, configuration=self.config_file)
+            android_trex_thread.run()
 
     def load_configuration_file(self):
         """Method used to load configuration file"""
