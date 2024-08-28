@@ -14,8 +14,10 @@ from yaml import serialize
 from android_devices.adb_interface import AdbInterface
 from diagnostics.android_cpu_diagnostics import AndroidCpuDiagnostics
 from diagnostics.android_wifi_diagnostics import WifiDiagnostics
+from diagnostics.gpu_diagnostics import AndroidGPUDiagnostics
 from benchmark_routines.gfx_bench_five import GFXBench
 from constants import *
+
 
 time_stamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
@@ -78,6 +80,23 @@ class RunAndroidDiagnostics(QThread):
         android_wifi_diagnostics = WifiDiagnostics(self.serial_number, self.configuration)
         android_wifi_diagnostics.run_wifi_diagnostics()
 
+class RunAndroidGPUDiagnostics(QThread):
+    """Thread class used to android gpu diagnostics"""
+
+    def __init__(self, serial_number, configuration):
+        """Constructor"""
+        super().__init__()
+        self.serial_number = serial_number
+        self.configuration = configuration
+
+    def run(self):
+        """Thread runner method"""
+        android_gpu_diagnostics = AndroidGPUDiagnostics(serial_number=self.serial_number,
+                                                        configuration=self.configuration)
+        android_gpu_diagnostics.gpu_level_one_diagnostics()
+
+
+
 
 class GeekBenchFive(QThread):
     """Class used to run  GeekBench Bench mark"""
@@ -114,20 +133,24 @@ class AndroidDiagFrontPanel(QWidget):
         self.diagnostic_tab_sub_layout_one = QVBoxLayout()
         self.diagnostic_tab_sub_layout_two = QVBoxLayout()
         self.diagnostic_tab_sub_layout_three = QVBoxLayout()
+        self.get_imei_number_button = QPushButton("Get IMEI Number")
         self.battery_diagnostics_button = QPushButton("Battery Diagnostics")
         self.disable_wifi_radio_button = QPushButton("Disable Wifi")
         self.enable_wifi_radio_button = QPushButton("Enable Wifi")
         self.enable_nfc_button = QPushButton("Enable NFC")
         self.disable_nfc_button = QPushButton("Disable NFC")
         self.super_user_mode_button = QPushButton("Super User Mode")
+        self.gpu_diagnostics_button = QPushButton("Run GPU Diagnostics")
         self.run_android_diagnostics_button = QPushButton("Run Android Diagnostics")
         self.diagnostic_text_box = QTextEdit()
+        self.diagnostic_tab_sub_layout_one.addWidget(self.get_imei_number_button)
         self.diagnostic_tab_sub_layout_one.addWidget(self.disable_wifi_radio_button)
         self.diagnostic_tab_sub_layout_one.addWidget(self.enable_wifi_radio_button)
         self.diagnostic_tab_sub_layout_one.addWidget(self.enable_nfc_button)
         self.diagnostic_tab_sub_layout_one.addWidget(self.disable_nfc_button)
         self.diagnostic_tab_sub_layout_one.addWidget(self.super_user_mode_button)
         self.diagnostic_tab_sub_layout_two.addWidget(self.battery_diagnostics_button)
+        self.diagnostic_tab_sub_layout_two.addWidget(self.gpu_diagnostics_button)
         self.diagnostic_tab_sub_layout_two.addWidget(self.run_android_diagnostics_button)
         #self.diagnostic_tab_sub_layout_three.addWidget(self.diagnostic_text_box)
         self.diagnostic_tab.layout.addLayout(self.diagnostic_tab_sub_layout_one, 0, 0)
@@ -137,6 +160,7 @@ class AndroidDiagFrontPanel(QWidget):
         # Diagnostic Button Connections
         self.enable_wifi_radio_button.clicked.connect(self.on_enable_wifi)
         self.run_android_diagnostics_button.clicked.connect(self.on_run_android_diagnostics)
+        self.gpu_diagnostics_button.clicked.connect(self.on_run_gpu_diagnostics)
 
         # Benchmark Tab Layout
         self.benchmark_tab.layout = QGridLayout()
@@ -198,6 +222,13 @@ class AndroidDiagFrontPanel(QWidget):
 
     def on_enable_wifi(self):
         """Event handler for enabling WiFi"""
+
+    def on_run_gpu_diagnostics(self):
+        """Method used to run GPU Diagnostics"""
+        for _ , device_serial in enumerate(self.serial_numbers):
+            android_gpu_diagnostics_thread = RunAndroidGPUDiagnostics(serial_number=device_serial,
+                                                                      configuration=self.config_file)
+            android_gpu_diagnostics_thread.run()
 
 
     def get_available_devices_serial_numbers(self):
