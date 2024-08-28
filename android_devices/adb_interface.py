@@ -262,7 +262,14 @@ class AdbInterface:
 
     def get_gpu_model(self):
         """Method used to get GPU model"""
-        pass
+        logger.info("Capturing GPU model information...")
+        gpu_model_information = subprocess.run(["adb", "-s", f"{self.serial_number}", "shell", "dumpsys",
+                        "SurfaceFlinger", "|", "grep", "GLES"], capture_output=True)
+        gpu_model_information = gpu_model_information.stdout.decode("utf-8")
+
+        return gpu_model_information
+
+
 
 
 if __name__ == "__main__":
