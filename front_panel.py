@@ -246,6 +246,7 @@ class AndroidDiagFrontPanel(QWidget):
                                                                configuration=self.config_file)
             android_diagnostics_thread.run()
 
+
     def run_trex_on_screen(self):
         """Method used to run T-Rex on screen"""
         for _, device_serial in enumerate(self.serial_numbers):

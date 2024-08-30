@@ -1,5 +1,6 @@
 import glob
 import logging
+import pexpect
 import subprocess
 import re
 
@@ -16,6 +17,7 @@ class AdbInterface:
         """Constructor"""
         self.serial_number = serial_number
         self.pingable_host = host
+        self.android_client = None
 
     def open_adb_shell(self):
         """Method used to open adb shell"""
@@ -269,9 +271,27 @@ class AdbInterface:
 
         return gpu_model_information
 
+    def get_andriod_hostname(self):
+        """Method used to get Android hostname"""
+        logger.info("Collecting hostname")
+        self.__connect_android()
+        host_name = self.android_client.run('hostname')
+
+        return host_name
+
+    def __connect_android(self):
+        """ Connect to Android. """
+        self.android_client = pexpect.spawn(f"adb -s {self.serial_number} shell")
+
+
+    def disconnect_android(self):
+        """ Disconnect Android. """
+
+
+
 
 
 
 if __name__ == "__main__":
     adb = AdbInterface()
-    adb.get_cpu_temperatures()
+    adb.get_andriod_hostname()
