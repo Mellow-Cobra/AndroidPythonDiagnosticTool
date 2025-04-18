@@ -14,7 +14,7 @@ from yaml import serialize
 from android_devices.adb_interface import AdbInterface
 from diagnostics.android_cpu_diagnostics import AndroidCpuDiagnostics
 from diagnostics.android_wifi_diagnostics import WifiDiagnostics
-from diagnostics.gpu_diagnostics import AndroidGPUDiagnostics
+from diagnostics.android_gpu_diagnostics import AndroidGPUDiagnostics
 from benchmark_routines.gfx_bench_five import GFXBench
 from constants import *
 
@@ -25,10 +25,10 @@ log_name = f"C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs\\adt_log_{time
 
 if platform.system() == LINUX:
     if not os.path.exists('/tmp/android_logs'):
-        os.mkdir('/tmp/android_logs')
+        os.makedirs('/tmp/android_logs')
 elif platform.system() == WIN:
     if not os.path.exists('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs\\'):
-        os.mkdir('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs')
+        os.makedirs('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs')
 logging.basicConfig(filename=log_name, level=logging.INFO)
 
 
@@ -91,9 +91,9 @@ class RunAndroidGPUDiagnostics(QThread):
 
     def run(self):
         """Thread runner method"""
-        android_gpu_diagnostics = AndroidGPUDiagnostics(serial_number=self.serial_number,
+        android_gpu_diagnostics = AndroidGPUDiagnostics(device_serial_number=self.serial_number,
                                                         configuration=self.configuration)
-        android_gpu_diagnostics.gpu_level_one_diagnostics()
+        android_gpu_diagnostics.gpu_level_zero_diagnostics()
 
 
 
@@ -254,7 +254,8 @@ class AndroidDiagFrontPanel(QWidget):
 
     def load_configuration_file(self):
         """Method used to load configuration file"""
-        config_file_path = str(self.android_diagnostics_configuration.text())
+        config_file_path = str(r"C:\Users\inter\PycharmProject\AndroidPythonDiagnosticTool\configuration\android_diag_config.json")
+        #self.android_diagnostics_configuration.text())
         with open(config_file_path, mode='r', encoding='utf-8') as config_file:
             self.config_file = json.load(config_file)
         self.serial_numbers = self.config_file[ANDROID_SETTINGS][ANDROID_DEVICES]
