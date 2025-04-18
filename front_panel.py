@@ -77,8 +77,8 @@ class RunAndroidDiagnostics(QThread):
         """Thread runner method"""
         android_cpu_diagnostics = AndroidCpuDiagnostics(self.serial_number, self.configuration)
         android_cpu_diagnostics.run_cpu_diagnostics()
-        android_wifi_diagnostics = WifiDiagnostics(self.serial_number, self.configuration)
-        android_wifi_diagnostics.run_wifi_diagnostics()
+        # android_wifi_diagnostics = WifiDiagnostics(self.serial_number, self.configuration)
+        # android_wifi_diagnostics.run_wifi_diagnostics()
 
 class RunAndroidGPUDiagnostics(QThread):
     """Thread class used to android gpu diagnostics"""
@@ -234,10 +234,11 @@ class AndroidDiagFrontPanel(QWidget):
     def get_available_devices_serial_numbers(self):
         """Event handler for finding serial numbers"""
         abd_interface = AdbInterface()
-        serial_numbers = abd_interface.get_available_devices()
+        device_serial_numbers, default_serial_number = abd_interface.get_available_devices()
         self.android_serial_number_text_box.clear()
-        for _, serial_number in enumerate(serial_numbers):
+        for _, serial_number in enumerate(device_serial_numbers):
             self.android_serial_number_text_box.append(serial_number)
+
 
     def on_run_android_diagnostics(self):
         """Method used to spawn threads and test devices"""

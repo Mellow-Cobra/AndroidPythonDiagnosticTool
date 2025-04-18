@@ -3,7 +3,8 @@ import csv
 import datetime
 import os
 import logging
-from android_devices.adb_interface import AdbInterface
+from hardware_probes.cpu import AdbCpuProbe
+from device_control.android_system_control import AdbController
 from constants import *
 
 # Third Part Imports
@@ -18,23 +19,21 @@ class AndroidCpuDiagnostics:
 
     def __init__(self, serial_number, configuration):
         """Constructor"""
-        self.adb_interface = AdbInterface(serial_number)
-        self.serial_number = serial_number
+        self._adb_cpu_probe = AdbCpuProbe(serial_number)
         self.configuration = configuration
         self.test_results = []
 
     def run_cpu_diagnostics(self):
         """Method used to run CPU diagnostics"""
-        self.adb_interface.enable_super_user_mode()
         self.evaluate_cpu_temperatures()
-        self.evaluate_cpu_clock_speed_diagnostics()
-        self.generate_cpu_diagnostic_test_report()
+        # self.evaluate_cpu_clock_speed_diagnostics()
+        # self.generate_cpu_diagnostic_test_report()
 
     def evaluate_cpu_clock_speed_diagnostics(self):
         """Method used to evaluate hardware diagnostics"""
-        min_frequencies = self.adb_interface.get_cpu_min_speed()
-        max_frequencies = self.adb_interface.get_cpu_max_speed()
-        cpu_frequencies = self.adb_interface.get_cpu_frequencies()
+        min_frequencies = self._adb_cpu_probe.get_cpu_min_speed()
+        max_frequencies = self._adb_cpu_probe.get_cpu_max_speed()
+        cpu_frequencies = self._adb_cpu_probe.get_cpu_frequencies()
         self.test_results.append(CPU_FREQUENCY_DIAGNOSTIC_HEADER)
         for index, frequency in enumerate(cpu_frequencies):
             if float(max_frequencies[index]) >= frequency >= float(min_frequencies[index]):
@@ -48,7 +47,7 @@ class AndroidCpuDiagnostics:
 
     def evaluate_cpu_temperatures(self):
         """Method used to evaluate cpu temperatures"""
-        cpu_temperatures = self.adb_interface.get_cpu_temperatures()
+        cpu_temperatures = self._adb_cpu_probe.get_cpu_temperatures()
         self.test_results.append(CPU_TEMPERATURE_DIAGNOSTIC_HEADER)
         for index, temperature in enumerate(cpu_temperatures):
             if MIN_TEMPERATURE_LIMIT <= float(temperature) < MAX_TEMPERATURE_LIMIT_C:
@@ -64,6 +63,6 @@ class AndroidCpuDiagnostics:
         """Method used to generate test report for CPU diagnostics"""
         time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
         os.chdir(self.configuration[TEST_SETTINGS][TEST_RESULTS])
-        with open(f'cpu_diagnostics_{self.serial_number}_{time_stamp}.csv', mode='w', newline='') as file:
+        with open(f'cpu_diagnostics_{self._adb_cpu_probe.serial_number}_{time_stamp}.csv', mode='w', newline='') as file:
             csv_writer = csv.writer(file)
             csv_writer.writerows(self.test_results)
