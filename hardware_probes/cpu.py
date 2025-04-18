@@ -9,7 +9,7 @@ from android_devices.adb_interface import AdbInterface
 logger = logging.getLogger(__name__)
 
 
-class CpuProbe:
+class AdbCpuProbe:
     """Class used to probe CPU over adb shell at low level"""
 
     def __init__(self, device_serial_number):
@@ -23,14 +23,13 @@ class CpuProbe:
         temperatures = list()
         thermal_service = self._adb_shell.run_adb_command("dumpsys thermalservice | grep CPU")
 
-        del thermal_service
-
         temp_regex = r"\bmValue\b=([0-9])*\.([0-9])*"
         for _, temp in enumerate(thermal_service):
 
             match = re.search(pattern=temp_regex, string=temp)
             if match:
                 temperatures.append(float(match.group().strip("mValue=")))
+                print(temperatures)
 
         return temperatures
 
