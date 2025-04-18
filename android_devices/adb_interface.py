@@ -86,6 +86,3 @@ class AdbInterface:
 
 
 
-if __name__ == "__main__":
-    adb = AdbInterface()
-    adb.get_cpu_temperatures()
