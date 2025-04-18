@@ -3,6 +3,8 @@ NOT_AVAILABLE = "not available"
 MHZ = "MHz"
 CELSIUS = "Celsius"
 
+# ADB Shell
+DEVICE = "device"
 
 # Platform
 LINUX = 'Linux'
