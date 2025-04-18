@@ -21,7 +21,7 @@ class CpuProbe:
         """Method used to get CPU temperatures"""
         logger.info("Retrieving CPU temperatures")
         temperatures = list()
-        thermal_service = self._adb_shell("dumpsys thermalservice | grep CPU")
+        thermal_service = self._adb_shell.run_adb_command("dumpsys thermalservice | grep CPU")
 
         del thermal_service
 
@@ -39,16 +39,12 @@ class CpuProbe:
         """Method used to get CPU frequencies"""
         logger.info("Retrieving current CPU frequencies")
         cpu_frequencies = list()
-        available_cpus = subprocess.run(["adb", "-s", f"{self.serial_number}", "shell",
-                                         "find", "/sys/devices/system/cpu/", "-name", "cpu[0-9]*"],
-                                        capture_output=True)
+        available_cpus = self._adb_shell.run_adb_command("find /sys/devices/system/cpu/ -name cpu[0-9]*")
 
         available_cpus = sorted(available_cpus.stdout.decode("utf-8").splitlines())
 
         for index, cpu_directory in enumerate(available_cpus):
-            cpu_freq = subprocess.run([f"adb", "-s", f"{self.serial_number}",
-                                       "shell", f"cat {cpu_directory}/cpufreq/cpuinfo_cur_freq"],
-                                      capture_output=True)
+            cpu_freq = self._adb_shell.run_adb_command(f"cat {cpu_directory}/cpufreq/cpuinfo_cur_freq")
             cpu_freq = float(cpu_freq.stdout.decode("utf-8").strip('\r\n'))
             cpu_frequencies.append(cpu_freq)
 
@@ -58,9 +54,17 @@ class CpuProbe:
     def get_cpu_max_speed(self):
         """Method used to get cpu max speed"""
         logger.info("Capturing CPU maximum speed...")
-        cpu_max_speeds = subprocess.run(["adb", "-s", f"{self.serial_number}",
-                                         "shell", "cat", "/sys/devices/system/cpu/cpu[0-9]*/cpufreq/cpuinfo_max_freq"],
-                                        capture_output=True)
+        cpu_max_speeds = self._adb_shell.run_adb_command("cat "
+                                                         "/sys/devices/system/cpu/cpu[0-9]*/cpufreq/cpuinfo_max_freq")
         cpu_max_speeds = cpu_max_speeds.stdout.decode("utf-8").splitlines()
 
         return cpu_max_speeds
+
+    def get_cpu_min_speed(self):
+        """Method used to get cpu min speed"""
+        logger.info("Capturing minimum CPU speeds...")
+        cpu_min_speeds = self._adb_shell.run_adb_command("cat"
+                                                         "/sys/devices/system/cpu/cpu[0-9]*/cpufreq/cpuinfo_min_freq")
+        cpu_min_speeds = cpu_min_speeds.stdout.decode("utf-8").splitlines()
+
+        return cpu_min_speeds

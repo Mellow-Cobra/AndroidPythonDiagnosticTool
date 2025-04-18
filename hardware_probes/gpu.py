@@ -18,19 +18,7 @@ class AdbGpuProbe:
 
 
 
-    def get_battery_level(self):
-        """Method used to pull battery diagnostics from android phone"""
-        battery_level = subprocess.run(["adb", "-s", f"{self.serial_number}",
-                                "shell", "dumpsys", "battery", "| grep level"], capture_output=True)
-        battery_level = battery_level.stdout.decode("utf-8")
-        battery_level_regex = r"\blevel\b:\s\d*"
-        match = re.search(pattern=battery_level_regex, string=battery_level)
-        if match:
-            print(match.group())
-        else:
-            return NOT_AVAILABLE
 
-        return battery_level
 
     def enable_super_user_mode(self):
         """Method used to enable super user mode"""
@@ -68,19 +56,7 @@ class AdbGpuProbe:
 
 
 
-    def get_cpu_min_speed(self):
-        """Method used to get cpu min speed"""
-        logger.info("Capturing minimum CPU speeds...")
-        cpu_min_speeds = subprocess.run(["adb", "-s", f"{self.serial_number}",
-                                         "shell", "cat", "/sys/devices/system/cpu/cpu[0-9]*/cpufreq/cpuinfo_min_freq"],
-                                        capture_output=True )
-        cpu_min_speeds = cpu_min_speeds.stdout.decode("utf-8").splitlines()
 
-        return cpu_min_speeds
-
-
-
-        return serial_numbers
 
     def get_gpu_information(self):
         """Method used to get GPU model"""
