@@ -44,7 +44,6 @@ class AdbInterface:
 
         try:
             output = subprocess.run(base_cmd, capture_output=True)
-            print(output)
             if output.returncode == 0:
                 return output.stdout.decode("utf-8").strip()
             else:
@@ -52,14 +51,6 @@ class AdbInterface:
         except Exception as exception:
             logger.info(f"Encountered: {exception}")
 
-
-
-
-        raw_cmd_output = subprocess.run(base_cmd, stdout=subprocess.PIPE,
-                                    capture_output=True)
-        cmd_output = raw_cmd_output.stdout.decode("utf-8").strip()
-
-        return cmd_output
 
     def get_available_devices(self, ):
         """Method used to get available devices

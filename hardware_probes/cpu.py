@@ -76,18 +76,32 @@ class AdbCpuProbe:
         logger.info("Retrieving CPU Architecture.")
         cpu_arch = self._adb_shell.run_adb_command("getprop ro.product.cpu.abi")
 
+        return cpu_arch
+
     def get_cpu_governor(self):
         """Method used to check CPU governor"""
         logger.info("Checking CPU governor.")
-        cpu_governor_output = self._adb_shell.run_adb_command("/sys/devices/system/cpu/cpu(0-9)+"
-                                                              "/cpufreq/scaling_governor")
-        print(cpu_governor_output)
+        cpu_governor_dictionary = {}
+        cpu_governor_output = self._adb_shell.run_adb_command("cat /sys/devices/system/cpu/cpu*"
+                                                              "/cpufreq/scaling_governor").split("\r\n")
+        for index, cpu_governor in enumerate(cpu_governor_output):
+            cpu_governor_dictionary.update({f"cpu{index} governor": cpu_governor})
+
+        return cpu_governor_dictionary
+
 
     def check_cpus_online(self):
         """Method used to check which CPUs are online"""
         logger.info("Checking which CPUs are online.")
-        cpus_online_output = self._adb_shell.run_adb_command("ls /sys/devices/system/cpu/ | grep cpu(0-9)+")
-        print(cpus_online_output)
+        cpus_online_output = (self._adb_shell.run_adb_command("cat /sys/devices/system/cpu/cpu[0-9]*/online")
+                              .split("\r\n"))
+        cpus_online = {}
+        for index, cpu_status in enumerate(cpus_online_output):
+            cpus_online.update({f"cpu{index} online_status": f"{cpu_status}"})
+
+
+        return cpus_online
+
 
     def get_cpu_hardware(self) -> Optional[str]:
         """Method used to get CPU information"""

@@ -35,6 +35,7 @@ class AndroidCpuDiagnostics:
         self._adb_cpu_probe.get_cpu_architecture()
         self._adb_cpu_probe.get_cpu_hardware()
         self._adb_cpu_probe.get_cpu_governor()
+        self._adb_cpu_probe.check_cpus_online()
 
 
     def evaluate_cpu_clock_speed_diagnostics(self):
