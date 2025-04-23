@@ -2,8 +2,11 @@
 import logging
 import re
 
+from typing import Optional
+
 # Local Imports
 from android_devices.adb_interface import AdbInterface
+from constants import *
 
 
 logger = logging.getLogger(__name__)
@@ -67,3 +70,19 @@ class AdbCpuProbe:
         cpu_min_speeds = cpu_min_speeds.stdout.decode("utf-8").splitlines()
 
         return cpu_min_speeds
+
+    def get_cpu_architecture(self):
+        """Method used to get CPU architecture"""
+        logger.info("Retrieving CPU Architecture...")
+        cpu_arch = self._adb_shell.run_adb_command("getprop ro.product.cpu.abi")
+
+    def get_cpu_hardware(self) -> Optional[str]:
+        """Method used to get CPU information"""
+        cpu_hardware = self._adb_shell.run_adb_command("cat /proc/cpuinfo")
+        regex_pattern = r"Hardware\s*\:\s[A-Za-z0-9\s\-\_\@\#\!\.\$\,]+"
+        match = re.search(pattern=regex_pattern, string=cpu_hardware)
+        if match:
+            logger.info(f"CPU Hardware manufacturer: {match.group()}")
+            return match.group()
+        else:
+            return NOT_AVAILABLE

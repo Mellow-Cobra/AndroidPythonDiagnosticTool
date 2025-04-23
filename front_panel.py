@@ -64,7 +64,7 @@ class RunTrexOnScreen(QThread):
         gfx_bench_five.run_trex_benchmark()
 
 
-class RunAndroidDiagnostics(QThread):
+class RunCpuDiagnostics(QThread):
     """Thread class used to run cpu diagnostics"""
 
     def __init__(self, serial_number, configuration):
@@ -77,8 +77,20 @@ class RunAndroidDiagnostics(QThread):
         """Thread runner method"""
         android_cpu_diagnostics = AndroidCpuDiagnostics(self.serial_number, self.configuration)
         android_cpu_diagnostics.run_cpu_diagnostics()
-        # android_wifi_diagnostics = WifiDiagnostics(self.serial_number, self.configuration)
-        # android_wifi_diagnostics.run_wifi_diagnostics()
+
+class RunWifiDiagnostics(QThread):
+    """Thread class used to run wifi diagnostics"""
+
+    def __init__(self, serial_number, configuration):
+        """Constructor"""
+        super.__init__()
+        self.serial_number = serial_number
+        self.configuration = configuration
+
+    def run(self):
+        """Thread runner method"""
+        android_wifi_diagnostics = WifiDiagnostics(self.serial_number, self.configuration)
+        android_wifi_diagnostics.run_wifi_diagnostics()
 
 class RunAndroidGPUDiagnostics(QThread):
     """Thread class used to android gpu diagnostics"""
@@ -141,7 +153,7 @@ class AndroidDiagFrontPanel(QWidget):
         self.disable_nfc_button = QPushButton("Disable NFC")
         self.super_user_mode_button = QPushButton("Super User Mode")
         self.gpu_diagnostics_button = QPushButton("Run GPU Diagnostics")
-        self.run_android_diagnostics_button = QPushButton("Run Android Diagnostics")
+        self.run_android_cpu_diagnostics_button = QPushButton("Run Android Diagnostics")
         self.diagnostic_text_box = QTextEdit()
         self.diagnostic_tab_sub_layout_one.addWidget(self.get_imei_number_button)
         self.diagnostic_tab_sub_layout_one.addWidget(self.disable_wifi_radio_button)
@@ -151,7 +163,7 @@ class AndroidDiagFrontPanel(QWidget):
         self.diagnostic_tab_sub_layout_one.addWidget(self.super_user_mode_button)
         self.diagnostic_tab_sub_layout_two.addWidget(self.battery_diagnostics_button)
         self.diagnostic_tab_sub_layout_two.addWidget(self.gpu_diagnostics_button)
-        self.diagnostic_tab_sub_layout_two.addWidget(self.run_android_diagnostics_button)
+        self.diagnostic_tab_sub_layout_two.addWidget(self.run_android_cpu_diagnostics_button)
         #self.diagnostic_tab_sub_layout_three.addWidget(self.diagnostic_text_box)
         self.diagnostic_tab.layout.addLayout(self.diagnostic_tab_sub_layout_one, 0, 0)
         self.diagnostic_tab.layout.addLayout(self.diagnostic_tab_sub_layout_two, 0, 1)
@@ -159,7 +171,7 @@ class AndroidDiagFrontPanel(QWidget):
 
         # Diagnostic Button Connections
         self.enable_wifi_radio_button.clicked.connect(self.on_enable_wifi)
-        self.run_android_diagnostics_button.clicked.connect(self.on_run_android_diagnostics)
+        self.run_android_cpu_diagnostics_button.clicked.connect(self.on_run_android_cpu_diagnostics)
         self.gpu_diagnostics_button.clicked.connect(self.on_run_gpu_diagnostics)
 
         # Benchmark Tab Layout
@@ -240,12 +252,12 @@ class AndroidDiagFrontPanel(QWidget):
             self.android_serial_number_text_box.append(serial_number)
 
 
-    def on_run_android_diagnostics(self):
+    def on_run_android_cpu_diagnostics(self):
         """Method used to spawn threads and test devices"""
         for _, device_serial in enumerate(self.serial_numbers):
-            android_diagnostics_thread = RunAndroidDiagnostics(serial_number=device_serial,
+            android_cpu_diagnostics_thread = RunCpuDiagnostics(serial_number=device_serial,
                                                                configuration=self.config_file)
-            android_diagnostics_thread.run()
+            android_cpu_diagnostics_thread.run()
 
     def run_trex_on_screen(self):
         """Method used to run T-Rex on screen"""
