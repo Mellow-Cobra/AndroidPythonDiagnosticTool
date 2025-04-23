@@ -34,6 +34,8 @@ class AndroidCpuDiagnostics:
         """Method used to run level zero CPU diagnostics"""
         self._adb_cpu_probe.get_cpu_architecture()
         self._adb_cpu_probe.get_cpu_hardware()
+        self._adb_cpu_probe.get_cpu_governor()
+
 
     def evaluate_cpu_clock_speed_diagnostics(self):
         """Method used to evaluate hardware diagnostics"""

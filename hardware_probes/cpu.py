@@ -73,8 +73,21 @@ class AdbCpuProbe:
 
     def get_cpu_architecture(self):
         """Method used to get CPU architecture"""
-        logger.info("Retrieving CPU Architecture...")
+        logger.info("Retrieving CPU Architecture.")
         cpu_arch = self._adb_shell.run_adb_command("getprop ro.product.cpu.abi")
+
+    def get_cpu_governor(self):
+        """Method used to check CPU governor"""
+        logger.info("Checking CPU governor.")
+        cpu_governor_output = self._adb_shell.run_adb_command("/sys/devices/system/cpu/cpu(0-9)+"
+                                                              "/cpufreq/scaling_governor")
+        print(cpu_governor_output)
+
+    def check_cpus_online(self):
+        """Method used to check which CPUs are online"""
+        logger.info("Checking which CPUs are online.")
+        cpus_online_output = self._adb_shell.run_adb_command("ls /sys/devices/system/cpu/ | grep cpu(0-9)+")
+        print(cpus_online_output)
 
     def get_cpu_hardware(self) -> Optional[str]:
         """Method used to get CPU information"""
