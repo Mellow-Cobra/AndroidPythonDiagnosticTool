@@ -55,7 +55,9 @@ class AdbBatteryProbe:
             return battery_technology
         else:
             logger.info(f"Could not determine battery technology: {NOT_AVAILABLE}")
-            return NOT_AVAILABLE
+            battery_technology.update({"Battery Technology": NOT_AVAILABLE})
+            return battery_technology
+
 
     def get_battery_health(self):
         """Method used to determine battery voltage"""
@@ -73,5 +75,22 @@ class AdbBatteryProbe:
             battery_health.update({"Battery Health": NOT_AVAILABLE})
             return battery_health
 
+
+    def get_battery_voltage(self):
+        """Method used to determine battery voltage"""
+        adb_output = self.battery_adb_dumpsys("voltage")
+        battery_voltage_regex = r"\bvoltage\b:\s*(\d+)"
+        match = re.findall(pattern=battery_voltage_regex, string=adb_output)
+        battery_voltage = dict()
+        if match:
+            match_stripped = int(match[1])
+            battery_voltage_in_volts = match_stripped / 1000
+            logger.info(f"Battery Voltage: {battery_voltage_in_volts} Volts")
+            battery_voltage.update({"Battery Voltage": f"{battery_voltage_in_volts}"})
+            return battery_voltage
+        else:
+            logger.info("Could not determine battery voltage.")
+            battery_voltage.update({"Battery Voltage": NOT_AVAILABLE})
+            return battery_voltage
 
 
