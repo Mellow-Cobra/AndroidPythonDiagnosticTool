@@ -67,3 +67,9 @@ class AdbCpuProbe:
         cpu_min_speeds = cpu_min_speeds.stdout.decode("utf-8").splitlines()
 
         return cpu_min_speeds
+
+    def get_cpu_architecture(self):
+        """Method used to get CPU architecture"""
+        logger.info("Retrieving CPU Architecture...")
+        cpu_arch = self._adb_shell.run_adb_command("getprop ro.product.cpu.abi")
+        print(cpu_arch)

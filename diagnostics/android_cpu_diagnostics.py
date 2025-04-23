@@ -25,9 +25,14 @@ class AndroidCpuDiagnostics:
 
     def run_cpu_diagnostics(self):
         """Method used to run CPU diagnostics"""
+        self.level_zero_cpu_diagnostics()
         self.evaluate_cpu_temperatures()
-        # self.evaluate_cpu_clock_speed_diagnostics()
-        # self.generate_cpu_diagnostic_test_report()
+        self.evaluate_cpu_clock_speed_diagnostics()
+        self.generate_cpu_diagnostic_test_report()
+
+    def level_zero_cpu_diagnostics(self):
+        """Method used to run level zero CPU diagnostics"""
+        self._adb_cpu_probe.get_cpu_architecture()
 
     def evaluate_cpu_clock_speed_diagnostics(self):
         """Method used to evaluate hardware diagnostics"""
@@ -58,6 +63,7 @@ class AndroidCpuDiagnostics:
                 cpu_temperature_test_status = [index, MAX_TEMPERATURE_LIMIT_C, temperature, MIN_TEMPERATURE_LIMIT,
                                                CELSIUS, CPU_THROTTLE_OT, FAIL]
                 self.test_results.append(cpu_temperature_test_status)
+
 
     def generate_cpu_diagnostic_test_report(self):
         """Method used to generate test report for CPU diagnostics"""
