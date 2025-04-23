@@ -8,8 +8,6 @@ import platform
 import logging.config
 import sys
 
-from yaml import serialize
-
 # Local Imports
 from android_devices.adb_interface import AdbInterface
 from diagnostics.android_cpu_diagnostics import AndroidCpuDiagnostics
@@ -17,7 +15,7 @@ from diagnostics.android_wifi_diagnostics import WifiDiagnostics
 from diagnostics.android_gpu_diagnostics import AndroidGPUDiagnostics
 from diagnostics.android_battery_diagnostics import AndroidBatteryDiagnostics
 from benchmark_routines.gfx_bench_five import GFXBench
-from constants import *
+from core.constants import *
 
 
 time_stamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")

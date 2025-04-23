@@ -4,7 +4,6 @@ import logging
 
 # Local Imports
 from hardware_probes.gpu import AdbGpuProbe
-from constants import *
 
 logger = logging.getLogger(__name__)
 

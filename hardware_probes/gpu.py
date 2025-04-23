@@ -4,7 +4,7 @@ import re
 
 # Local Imports
 from android_devices.adb_interface import AdbInterface
-from constants import *
+from core.constants import *
 
 
 logger = logging.getLogger(__name__)

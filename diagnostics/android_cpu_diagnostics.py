@@ -2,19 +2,10 @@
 import csv
 import datetime
 import os
-import logging
 from hardware_probes.cpu import AdbCpuProbe
-from device_control.android_system_control import AdbController
-from constants import *
+from core.constants import *
 
 # Third Part Imports
-import pandas as pd
-from jinja2 import Template
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-
-
-
 
 
 class AndroidCpuDiagnostics:
