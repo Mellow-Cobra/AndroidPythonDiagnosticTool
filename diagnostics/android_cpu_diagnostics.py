@@ -9,6 +9,9 @@ from constants import *
 
 # Third Part Imports
 import pandas as pd
+from jinja2 import Template
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 
 
@@ -76,3 +79,4 @@ class AndroidCpuDiagnostics:
         with open(f'cpu_diagnostics_{time_stamp}.csv', mode='w', newline='') as file:
             csv_writer = csv.writer(file)
             csv_writer.writerows(self.test_results)
+

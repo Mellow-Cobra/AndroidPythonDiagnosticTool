@@ -15,6 +15,7 @@ from android_devices.adb_interface import AdbInterface
 from diagnostics.android_cpu_diagnostics import AndroidCpuDiagnostics
 from diagnostics.android_wifi_diagnostics import WifiDiagnostics
 from diagnostics.android_gpu_diagnostics import AndroidGPUDiagnostics
+from diagnostics.android_battery_diagnostics import AndroidBatteryDiagnostics
 from benchmark_routines.gfx_bench_five import GFXBench
 from constants import *
 
@@ -45,8 +46,8 @@ class BatteryDiagnostics(QThread):
 
     def run(self):
         """Thread runner method for battery diagnostics"""
-        battery_diag = AdbInterface(serial_number=self.serial_number)
-        battery_diag.get_battery_level()
+        battery_diagnostics = AndroidBatteryDiagnostics(device_serial_number=self.serial_number)
+        battery_diagnostics.level_zero_battery_diagnostics()
 
 class RunTrexOnScreen(QThread):
     """Class used to run Trex On Screen"""
@@ -153,7 +154,7 @@ class AndroidDiagFrontPanel(QWidget):
         self.disable_nfc_button = QPushButton("Disable NFC")
         self.super_user_mode_button = QPushButton("Super User Mode")
         self.gpu_diagnostics_button = QPushButton("Run GPU Diagnostics")
-        self.run_android_cpu_diagnostics_button = QPushButton("Run Android Diagnostics")
+        self.run_android_cpu_diagnostics_button = QPushButton("Run Android Device CPU Diagnostics")
         self.diagnostic_text_box = QTextEdit()
         self.diagnostic_tab_sub_layout_one.addWidget(self.get_imei_number_button)
         self.diagnostic_tab_sub_layout_one.addWidget(self.disable_wifi_radio_button)
@@ -224,7 +225,7 @@ class AndroidDiagFrontPanel(QWidget):
     def on_run_battery_diagnostics(self):
         """Event handler for battery diagnostics"""
         for _, device_serial in enumerate(self.serial_numbers):
-            battery_diagnostics = BatteryDiagnostics(serial_number=self.serial_numbers,
+            battery_diagnostics = BatteryDiagnostics(serial_number=device_serial,
                                                      configuration=self.config_file)
             battery_diagnostics.run()
 
