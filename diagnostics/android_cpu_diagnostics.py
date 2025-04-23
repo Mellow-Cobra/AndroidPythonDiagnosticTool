@@ -26,13 +26,14 @@ class AndroidCpuDiagnostics:
     def run_cpu_diagnostics(self):
         """Method used to run CPU diagnostics"""
         self.level_zero_cpu_diagnostics()
-        self.evaluate_cpu_temperatures()
-        self.evaluate_cpu_clock_speed_diagnostics()
-        self.generate_cpu_diagnostic_test_report()
+        # self.evaluate_cpu_temperatures()
+        # self.evaluate_cpu_clock_speed_diagnostics()
+        # self.generate_cpu_diagnostic_test_report()
 
     def level_zero_cpu_diagnostics(self):
         """Method used to run level zero CPU diagnostics"""
         self._adb_cpu_probe.get_cpu_architecture()
+        self._adb_cpu_probe.get_cpu_hardware()
 
     def evaluate_cpu_clock_speed_diagnostics(self):
         """Method used to evaluate hardware diagnostics"""
@@ -69,6 +70,6 @@ class AndroidCpuDiagnostics:
         """Method used to generate test report for CPU diagnostics"""
         time_stamp = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
         os.chdir(self.configuration[TEST_SETTINGS][TEST_RESULTS])
-        with open(f'cpu_diagnostics_{self._adb_cpu_probe.serial_number}_{time_stamp}.csv', mode='w', newline='') as file:
+        with open(f'cpu_diagnostics_{time_stamp}.csv', mode='w', newline='') as file:
             csv_writer = csv.writer(file)
             csv_writer.writerows(self.test_results)
