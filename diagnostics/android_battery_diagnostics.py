@@ -1,17 +1,8 @@
 # Local Imports
-import csv
-import datetime
-import os
 import logging
 from hardware_probes.battery import AdbBatteryProbe
-from device_control.android_system_control import AdbController
-from constants import *
 
 # Third Part Imports
-import pandas as pd
-from jinja2 import Template
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 
 
 logger = logging.getLogger(__name__)
@@ -27,3 +18,5 @@ class AndroidBatteryDiagnostics:
     def level_zero_battery_diagnostics(self):
         """Method used to run Level zero battery diagnostics"""
         self._adb_battery_probe.get_battery_level()
+        self._adb_battery_probe.get_battery_technology()
+        self._adb_battery_probe.get_battery_health()
