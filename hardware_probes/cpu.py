@@ -82,7 +82,7 @@ class AdbCpuProbe:
         """Method used to check CPU governor"""
         logger.info("Checking CPU governor.")
         cpu_governor_dictionary = {}
-        cpu_governor_output = self._adb_shell.run_adb_command("cat /sys/devices/system/cpu/cpu*"
+        cpu_governor_output = self._adb_shell.run_adb_command("cat /sys/devices/system/cpu/cpu[0-9]*"
                                                               "/cpufreq/scaling_governor").split("\r\n")
         for index, cpu_governor in enumerate(cpu_governor_output):
             cpu_governor_dictionary.update({f"cpu{index} governor": cpu_governor})
