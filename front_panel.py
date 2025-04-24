@@ -14,6 +14,7 @@ from diagnostics.android_cpu_diagnostics import AndroidCpuDiagnostics
 from diagnostics.android_wifi_diagnostics import WifiDiagnostics
 from diagnostics.android_gpu_diagnostics import AndroidGPUDiagnostics
 from diagnostics.android_battery_diagnostics import AndroidBatteryDiagnostics
+from monitors.cpu_monitor import CpuMonitor
 from benchmark_routines.gfx_bench_five import GFXBench
 from core.constants import *
 
@@ -47,21 +48,6 @@ class BatteryDiagnostics(QThread):
         battery_diagnostics = AndroidBatteryDiagnostics(device_serial_number=self.serial_number)
         battery_diagnostics.level_zero_battery_diagnostics()
 
-class RunTrexOnScreen(QThread):
-    """Class used to run Trex On Screen"""
-
-    def __init__(self, serial_number, configuration):
-        """Constructor"""
-        super().__init__()
-        self.serial_number = serial_number
-        self.configuration = configuration
-
-    def run(self):
-        """Thread runner method for T-Rex on screen"""
-        gfx_bench_five = GFXBench(serial_number=self.serial_number, configuration=self.configuration)
-        gfx_bench_five.launch_gfx_bench()
-        gfx_bench_five.run_trex_benchmark()
-
 
 class RunCpuDiagnostics(QThread):
     """Thread class used to run cpu diagnostics"""
@@ -77,6 +63,7 @@ class RunCpuDiagnostics(QThread):
         android_cpu_diagnostics = AndroidCpuDiagnostics(self.serial_number, self.configuration)
         android_cpu_diagnostics.run_cpu_diagnostics()
 
+
 class RunWifiDiagnostics(QThread):
     """Thread class used to run wifi diagnostics"""
 
@@ -90,6 +77,27 @@ class RunWifiDiagnostics(QThread):
         """Thread runner method"""
         android_wifi_diagnostics = WifiDiagnostics(self.serial_number, self.configuration)
         android_wifi_diagnostics.run_wifi_diagnostics()
+
+# Monitor Threads
+
+class MonitorCpu(QThread):
+    """Thread class used to run CPU monitors"""
+    temperature_signal = pyqtSignal(float)
+
+    def __init__(self, device_serial_number, configuration):
+        """Constructor"""
+        super.__init__()
+        self.device_serial_number = device_serial_number
+        self.configuration = configuration
+
+    def run(self):
+        """Thread runner method"""
+        while True:
+            android_cpu_monitor = CpuMonitor(self.device_serial_number)
+            temperature = android_cpu_monitor.monitor_cpu_temperature()
+            self.temperature_signal.emit(temperature)
+            QThread.msleep(1000)
+
 
 class RunAndroidGPUDiagnostics(QThread):
     """Thread class used to android gpu diagnostics"""
@@ -107,6 +115,20 @@ class RunAndroidGPUDiagnostics(QThread):
         android_gpu_diagnostics.gpu_level_zero_diagnostics()
 
 
+class RunTrexOnScreen(QThread):
+    """Class used to run Trex On Screen"""
+
+    def __init__(self, serial_number, configuration):
+        """Constructor"""
+        super().__init__()
+        self.serial_number = serial_number
+        self.configuration = configuration
+
+    def run(self):
+        """Thread runner method for T-Rex on screen"""
+        gfx_bench_five = GFXBench(serial_number=self.serial_number, configuration=self.configuration)
+        gfx_bench_five.launch_gfx_bench()
+        gfx_bench_five.run_trex_benchmark()
 
 
 class GeekBenchFive(QThread):
@@ -133,9 +155,11 @@ class AndroidDiagFrontPanel(QWidget):
         # Create Tabs
         tabs = QTabWidget()
         self.diagnostic_tab = QWidget()
+        self.monitor_tab = QWidget()
         self.configuration_tab = QWidget()
         self.benchmark_tab = QWidget()
         tabs.addTab(self.diagnostic_tab, "Diagnostics Tab")
+        tabs.addTab(self.monitor_tab, "Monitor Tab")
         tabs.addTab(self.benchmark_tab, "Benchmark Tab")
         tabs.addTab(self.configuration_tab, "Configuration Tab")
 
@@ -172,6 +196,18 @@ class AndroidDiagFrontPanel(QWidget):
         self.enable_wifi_radio_button.clicked.connect(self.on_enable_wifi)
         self.run_android_cpu_diagnostics_button.clicked.connect(self.on_run_android_cpu_diagnostics)
         self.gpu_diagnostics_button.clicked.connect(self.on_run_gpu_diagnostics)
+
+        # Monitor Tab Layout
+        self.monitor_tab.layout = QGridLayout()
+        self.monitor_cpu_sub_layout = QHBoxLayout()
+        self.monitor_cpu_temperature_button = QPushButton("Monitor CPU Temperature")
+        self.monitor_cpu_sub_layout.addWidget(self.monitor_cpu_temperature_button)
+        self.monitor_tab.layout.addLayout(self.monitor_cpu_sub_layout, 0, 0)
+        self.monitor_tab.setLayout(self.monitor_tab.layout)
+
+        # Monitor Tab Button Event Connections
+        self.monitor_cpu_temperature_button.clicked.connect(self.on_run_cpu_temperature_monitor)
+
 
         # Benchmark Tab Layout
         self.benchmark_tab.layout = QGridLayout()
@@ -241,6 +277,17 @@ class AndroidDiagFrontPanel(QWidget):
                                                                       configuration=self.config_file)
             android_gpu_diagnostics_thread.run()
 
+    def on_run_cpu_temperature_monitor(self):
+        """Method used to monitor CPU temperature"""
+        for _ , device_serial in enumerate(self.serial_numbers):
+            android_cpu_monitor_thread = MonitorCpu(device_serial_number=device_serial,
+                                                    configuration=self.config_file)
+            android_cpu_monitor_thread.temperature_signal.connect(self.update_monitor_temp)
+            android_cpu_monitor_thread.run()
+
+    def update_monitor_temp(self, temperature):
+        """Method used to display monitored CPU temperature"""
+        print(temperature)
 
     def get_available_devices_serial_numbers(self):
         """Event handler for finding serial numbers"""
