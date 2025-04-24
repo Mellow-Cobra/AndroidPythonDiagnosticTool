@@ -86,7 +86,7 @@ class MonitorCpu(QThread):
 
     def __init__(self, device_serial_number, configuration):
         """Constructor"""
-        super.__init__()
+        super().__init__()
         self.device_serial_number = device_serial_number
         self.configuration = configuration
 
@@ -95,7 +95,7 @@ class MonitorCpu(QThread):
         while True:
             android_cpu_monitor = CpuMonitor(self.device_serial_number)
             temperature = android_cpu_monitor.monitor_cpu_temperature()
-            self.temperature_signal.emit(temperature)
+            self.temperature_signal.emit(temperature[0])
             QThread.msleep(1000)
 
 

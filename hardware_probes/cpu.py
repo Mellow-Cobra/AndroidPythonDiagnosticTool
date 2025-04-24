@@ -4,6 +4,8 @@ import re
 
 from typing import Optional
 
+from pipenv.utils.shell import temp_environ
+
 # Local Imports
 from android_devices.adb_interface import AdbInterface
 from core.constants import *
@@ -27,12 +29,10 @@ class AdbCpuProbe:
         thermal_service = self._adb_shell.run_adb_command("dumpsys thermalservice | grep CPU")
 
         temp_regex = r"\bmValue\b=([0-9])*\.([0-9])*"
-        for _, temp in enumerate(thermal_service):
-
-            match = re.search(pattern=temp_regex, string=temp)
-            if match:
-                temperatures.append(float(match.group().strip("mValue=")))
-                print(temperatures)
+        match = re.search(pattern=temp_regex, string=thermal_service)
+        if match:
+            temperatures.append(float(match.group().strip("mValue=")))
+            print(temperatures)
 
         return temperatures
 
