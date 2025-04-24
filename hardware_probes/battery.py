@@ -83,8 +83,8 @@ class AdbBatteryProbe:
         match = re.findall(pattern=battery_voltage_regex, string=adb_output)
         battery_voltage = dict()
         if match:
-            match_stripped = int(match[1])
-            battery_voltage_in_volts = match_stripped / 1000
+            match_casted = float(match[1])
+            battery_voltage_in_volts = match_casted / 1000
             logger.info(f"Battery Voltage: {battery_voltage_in_volts} Volts")
             battery_voltage.update({"Battery Voltage": f"{battery_voltage_in_volts}"})
             return battery_voltage
@@ -93,4 +93,20 @@ class AdbBatteryProbe:
             battery_voltage.update({"Battery Voltage": NOT_AVAILABLE})
             return battery_voltage
 
+    def get_battery_temperature(self):
+        """Method used to determine battery temperature"""
+        adb_output = self.battery_adb_dumpsys("temperature")
+        battery_temperature_regex = r"\btemperature\b:\s*(\d+)"
+        match = re.search(pattern=battery_temperature_regex, string=adb_output)
+        battery_temperature = dict()
+        if match:
+            match_casted = float(match.group().lstrip("temperature:"))
+            temperature_in_celsius = match_casted / 10
+            logger.info(f"Battery Temperature: {temperature_in_celsius} C{DEGREE_SIGN}")
+            battery_temperature.update({"Battery Temperature": f"{temperature_in_celsius}C{DEGREE_SIGN}"})
+            return battery_temperature
+        else:
+            logger.info("Could not determine battery temperature")
+            battery_temperature.update({"Battery Temperature": f"{NOT_AVAILABLE}"})
+            return battery_temperature
 
