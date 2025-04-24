@@ -2,6 +2,7 @@
 NOT_AVAILABLE = "not available"
 MHZ = "MHz"
 CELSIUS = "Celsius"
+DEGREE_SIGN = '\u00B0'
 
 # ADB Shell
 DEVICE = "device"

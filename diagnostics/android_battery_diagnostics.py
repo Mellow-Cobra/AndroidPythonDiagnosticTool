@@ -21,3 +21,4 @@ class AndroidBatteryDiagnostics:
         self._adb_battery_probe.get_battery_technology()
         self._adb_battery_probe.get_battery_health()
         self._adb_battery_probe.get_battery_voltage()
+        self._adb_battery_probe.get_battery_temperature()
