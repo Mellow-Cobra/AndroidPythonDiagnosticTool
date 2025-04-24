@@ -95,7 +95,7 @@ class MonitorCpu(QThread):
         while True:
             android_cpu_monitor = CpuMonitor(self.device_serial_number)
             temperature = android_cpu_monitor.monitor_cpu_temperature()
-            self.temperature_signal.emit(temperature[0])
+            self.temperature_signal.emit(temperature)
             QThread.msleep(1000)
 
 

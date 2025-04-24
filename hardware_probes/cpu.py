@@ -21,20 +21,28 @@ class AdbCpuProbe:
         """Constructor"""
         self._adb_shell = AdbInterface(device_serial_number)
 
+    def cpu_adb_dumpsys(self, match_string):
+        """Method used for CPU dumpsys service on Android device"""
+
 
     def get_cpu_temperatures(self):
         """Method used to get CPU temperatures"""
         logger.info("Retrieving CPU temperatures")
         temperatures = list()
         thermal_service = self._adb_shell.run_adb_command("dumpsys thermalservice | grep CPU")
-
-        temp_regex = r"\bmValue\b=([0-9])*\.([0-9])*"
-        match = re.search(pattern=temp_regex, string=thermal_service)
+        temp_regex = r"\bTemperature{mValue=\b[0-9]{1,}\.[0-9]{1,}\,\s{1,}\bmType=\b[0-9]{1,}\,\s{1,}mName=\w+"#[0-9]{1,}\,"
+        match = re.findall(pattern=temp_regex, string=thermal_service)
+        cpu_temperatures = {"CPU": [], "Temperature": []}
         if match:
-            temperatures.append(float(match.group().strip("mValue=")))
-            print(temperatures)
+            for _, thermal_string in enumerate(match):
+                cpu_thermal_info = thermal_string.lstrip("Temperature{mValue=").split(",")
+                cpu_x_temperature = float(cpu_thermal_info[0])
+                cpu_x = cpu_thermal_info[2]
+                cpu_temperatures["CPU"].append(cpu_x.lstrip(" mName="))
+                cpu_temperatures["Temperature"].append(cpu_x_temperature)
 
-        return temperatures
+
+        return cpu_temperatures
 
 
     def get_cpu_frequencies(self):
