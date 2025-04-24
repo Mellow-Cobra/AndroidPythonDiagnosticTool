@@ -22,3 +22,7 @@ class AndroidBatteryDiagnostics:
         self._adb_battery_probe.get_battery_health()
         self._adb_battery_probe.get_battery_voltage()
         self._adb_battery_probe.get_battery_temperature()
+
+    def level_one_battery_diagnostics(self):
+        """Method used to collect level one battery diagnostics"""
+        self._adb_battery_probe.monitor_battery_temperature()
