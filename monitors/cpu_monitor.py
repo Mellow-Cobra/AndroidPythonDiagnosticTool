@@ -14,6 +14,7 @@ class CpuMonitor:
 
     def monitor_cpu_temperature(self):
         """Method used to monitor cpu temperature"""
-        temperature = self._adb_cpu_probe.get_cpu_temperatures()
+        cpu_temperatures = self._adb_cpu_probe.get_cpu_temperatures()
+        for cpus, temperatures in cpu_temperatures.items():
+            print(cpus)
 
-        return temperature
