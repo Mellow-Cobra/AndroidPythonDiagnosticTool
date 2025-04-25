@@ -16,6 +16,7 @@ from diagnostics.android_wifi_diagnostics import WifiDiagnostics
 from diagnostics.android_gpu_diagnostics import AndroidGPUDiagnostics
 from diagnostics.android_battery_diagnostics import AndroidBatteryDiagnostics
 from monitors.cpu_monitor import CpuMonitor
+from widgets.CpuMonitorGraph import CpuTempGraphMainWindow
 from benchmark_routines.gfx_bench_five import GFXBench
 from core.constants import *
 
@@ -98,10 +99,12 @@ class MonitorCpu(QThread):
         while True:
             android_cpu_monitor = CpuMonitor(self.device_serial_number)
             cpu_x, temperature = android_cpu_monitor.monitor_cpu_temperature()
+            cpu_count = len(cpu_x)
             for index, cpu in enumerate(cpu_x):
                 cpu_temp = float(temperature[index])
                 self.cpu_x_temp_signal.emit(cpu, cpu_temp)
             QThread.msleep(1000)
+            return cpu_count
 
 
 class RunAndroidGPUDiagnostics(QThread):
@@ -151,6 +154,7 @@ class AndroidDiagFrontPanel(QWidget):
 
     def __init__(self):
         super().__init__()
+        self.cpu_monitor_graph_window = None
         self.setWindowTitle("Android Diagnostic Tool")
         self.setFixedSize(1024, 768)
         self.main_layout = QVBoxLayout()
@@ -212,6 +216,10 @@ class AndroidDiagFrontPanel(QWidget):
 
         # Monitor Tab Button Event Connections
         self.monitor_cpu_temperature_button.clicked.connect(self.on_run_cpu_temperature_monitor)
+
+        # Monitor Real Time Graph attributes
+        self.cpu_temp_monitor_window = None
+
 
 
         # Benchmark Tab Layout
@@ -288,13 +296,19 @@ class AndroidDiagFrontPanel(QWidget):
             android_cpu_monitor_thread = MonitorCpu(device_serial_number=device_serial,
                                                     configuration=self.config_file)
             android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.update_monitor_temp)
+            if self.cpu_monitor_graph_window is None:
+                self.cpu_monitor_graph_window = CpuTempGraphMainWindow()
+                self.cpu_monitor_graph_window.show()
+            android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.cpu_monitor_graph_window.update_plot)
             android_cpu_monitor_thread.run()
 
 
+
     @pyqtSlot(str, float)
-    def update_monitor_temp(self, cpu, temperature):
+    def update_monitor_temp(self, cpu, temperature, cpu_count):
         """Method used to display monitored CPU temperature"""
         logger.info(f"Current {cpu} temperature is {temperature}C{DEGREE_SIGN}.")
+
 
     def get_available_devices_serial_numbers(self):
         """Event handler for finding serial numbers"""
