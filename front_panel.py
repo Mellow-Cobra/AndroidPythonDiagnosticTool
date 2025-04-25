@@ -4,6 +4,7 @@ import datetime
 
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
+import pyqtgraph as pg
 import platform
 import logging.config
 import sys
@@ -31,6 +32,7 @@ elif platform.system() == WIN:
         os.makedirs('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs')
 logging.basicConfig(filename=log_name, level=logging.INFO)
 
+logger = logging.getLogger(__name__)
 
 # logging.config.fileConfig('C:\\Users\\inter\\OneDrive\\Documents\\Results\\logs\\adt_log.log')
 
@@ -82,7 +84,8 @@ class RunWifiDiagnostics(QThread):
 
 class MonitorCpu(QThread):
     """Thread class used to run CPU monitors"""
-    temperature_signal = pyqtSignal(float)
+    cpu_x_temp_signal = pyqtSignal(str, float)
+
 
     def __init__(self, device_serial_number, configuration):
         """Constructor"""
@@ -94,8 +97,10 @@ class MonitorCpu(QThread):
         """Thread runner method"""
         while True:
             android_cpu_monitor = CpuMonitor(self.device_serial_number)
-            temperature = android_cpu_monitor.monitor_cpu_temperature()
-            self.temperature_signal.emit(temperature)
+            cpu_x, temperature = android_cpu_monitor.monitor_cpu_temperature()
+            for index, cpu in enumerate(cpu_x):
+                cpu_temp = float(temperature[index])
+                self.cpu_x_temp_signal.emit(cpu, cpu_temp)
             QThread.msleep(1000)
 
 
@@ -282,12 +287,14 @@ class AndroidDiagFrontPanel(QWidget):
         for _ , device_serial in enumerate(self.serial_numbers):
             android_cpu_monitor_thread = MonitorCpu(device_serial_number=device_serial,
                                                     configuration=self.config_file)
-            android_cpu_monitor_thread.temperature_signal.connect(self.update_monitor_temp)
+            android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.update_monitor_temp)
             android_cpu_monitor_thread.run()
 
-    def update_monitor_temp(self, temperature):
+
+    @pyqtSlot(str, float)
+    def update_monitor_temp(self, cpu, temperature):
         """Method used to display monitored CPU temperature"""
-        print(temperature)
+        logger.info(f"Current {cpu} temperature is {temperature}C{DEGREE_SIGN}.")
 
     def get_available_devices_serial_numbers(self):
         """Event handler for finding serial numbers"""
