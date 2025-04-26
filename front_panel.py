@@ -99,9 +99,9 @@ class MonitorCpu(QThread):
         android_cpu_monitor = CpuMonitor(self.device_serial_number)
         while True:
             cpu_x, temperature = android_cpu_monitor.monitor_cpu_temperature()
-            #for index, cpu in enumerate(cpu_x):
-            cpu_temp = float(temperature[0])
-            self.cpu_x_temp_signal.emit(cpu_temp)
+            for index, cpu in enumerate(cpu_x):
+             cpu_temp = float(temperature[index])
+             self.cpu_x_temp_signal.emit(cpu_temp)
             QThread.msleep(100)
 
 
