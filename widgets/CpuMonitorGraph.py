@@ -28,6 +28,7 @@ class CpuTempGraphMainWindow(QMainWindow):
     def update_plot(self, temp):
         self.x.append(self.ptr)
         self.y.append(temp)
+        self.ptr += 1
         if len(self.x) > 100:
             self.x = self.x[-100:]
             self.y = self.y[-100:]

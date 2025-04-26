@@ -85,7 +85,7 @@ class RunWifiDiagnostics(QThread):
 
 class MonitorCpu(QThread):
     """Thread class used to run CPU monitors"""
-    cpu_x_temp_signal = pyqtSignal(str, float)
+    cpu_x_temp_signal = pyqtSignal(float)
 
 
     def __init__(self, device_serial_number, configuration):
@@ -96,15 +96,14 @@ class MonitorCpu(QThread):
 
     def run(self):
         """Thread runner method"""
+        android_cpu_monitor = CpuMonitor(self.device_serial_number)
         while True:
-            android_cpu_monitor = CpuMonitor(self.device_serial_number)
             cpu_x, temperature = android_cpu_monitor.monitor_cpu_temperature()
-            cpu_count = len(cpu_x)
-            for index, cpu in enumerate(cpu_x):
-                cpu_temp = float(temperature[index])
-                self.cpu_x_temp_signal.emit(cpu, cpu_temp)
+            #for index, cpu in enumerate(cpu_x):
+            cpu_temp = float(temperature[0])
+            self.cpu_x_temp_signal.emit(cpu_temp)
             QThread.msleep(1000)
-            return cpu_count
+
 
 
 class RunAndroidGPUDiagnostics(QThread):
@@ -293,21 +292,22 @@ class AndroidDiagFrontPanel(QWidget):
     def on_run_cpu_temperature_monitor(self):
         """Method used to monitor CPU temperature"""
         for _ , device_serial in enumerate(self.serial_numbers):
+            self.cpu_monitor_graph_window = CpuTempGraphMainWindow()
+            self.cpu_monitor_graph_window.show()
             android_cpu_monitor_thread = MonitorCpu(device_serial_number=device_serial,
                                                     configuration=self.config_file)
             android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.update_monitor_temp)
-            if self.cpu_monitor_graph_window is None:
-                self.cpu_monitor_graph_window = CpuTempGraphMainWindow()
-                self.cpu_monitor_graph_window.show()
+
             android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.cpu_monitor_graph_window.update_plot)
             android_cpu_monitor_thread.run()
 
 
 
-    @pyqtSlot(str, float)
-    def update_monitor_temp(self, cpu, temperature, cpu_count):
+    @pyqtSlot(float)
+    def update_monitor_temp(self, temperature):
         """Method used to display monitored CPU temperature"""
-        logger.info(f"Current {cpu} temperature is {temperature}C{DEGREE_SIGN}.")
+        logger.info(f"Current  temperature is {temperature}C{DEGREE_SIGN}.")
+
 
 
     def get_available_devices_serial_numbers(self):
