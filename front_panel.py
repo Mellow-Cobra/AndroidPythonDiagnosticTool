@@ -295,13 +295,13 @@ class AndroidDiagFrontPanel(QWidget):
         self.cpu_monitor_graph_window = CpuTempGraphMainWindow()
         self.cpu_monitor_graph_window.show()
 
-        android_cpu_monitor_thread = MonitorCpu(device_serial_number=self.serial_numbers[0],
+        self.android_cpu_monitor_thread = MonitorCpu(device_serial_number=self.serial_numbers[0],
                                                     configuration=self.config_file)
-        android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.update_monitor_temp)
+        self.android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.update_monitor_temp)
 
 
-        android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.cpu_monitor_graph_window.update_plot)
-        android_cpu_monitor_thread.run()
+        self.android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.cpu_monitor_graph_window.update_plot)
+        self.android_cpu_monitor_thread.start()
 
 
 

@@ -18,7 +18,7 @@ class CpuTempGraphMainWindow(QMainWindow):
 
         self.graph.setLabel('left', 'Temperature (C)')
         self.graph.setLabel('bottom', 'Time (s)')
-        self.graph.setBackground("b")
+        self.graph.setBackground("k")
         self.graph.setYRange(0, 100)
         self.graph.showGrid(x=True, y=True)
 
@@ -33,7 +33,9 @@ class CpuTempGraphMainWindow(QMainWindow):
 
     def update_plot(self, temp):
         self.x.append(self.ptr)
+        print(type(temp))
         self.y.append(temp)
         self.ptr += 1
         self.curve.setData(self.x, self.y)
+        self.graph.repaint()
 
