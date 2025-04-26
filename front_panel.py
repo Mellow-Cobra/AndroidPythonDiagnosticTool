@@ -85,7 +85,7 @@ class RunWifiDiagnostics(QThread):
 
 class MonitorCpu(QThread):
     """Thread class used to run CPU monitors"""
-    cpu_x_temp_signal = pyqtSignal(float)
+    cpu_x_temp_signal = pyqtSignal(list)
 
 
     def __init__(self, device_serial_number, configuration):
@@ -100,9 +100,7 @@ class MonitorCpu(QThread):
         android_cpu_monitor = CpuMonitor(self.device_serial_number)
         while self.monitor_temp:
             cpu_x, temperature = android_cpu_monitor.monitor_cpu_temperature()
-            for index, cpu in enumerate(cpu_x):
-             cpu_temp = float(temperature[index])
-             self.cpu_x_temp_signal.emit(cpu_temp)
+            self.cpu_x_temp_signal.emit(temperature)
             QThread.msleep(100)
 
     def stop_monitoring_temperature(self):
@@ -312,7 +310,7 @@ class AndroidDiagFrontPanel(QWidget):
             self.android_cpu_temp_monitor_thread.start()
 
 
-    @pyqtSlot(float)
+    @pyqtSlot(list)
     def update_monitor_temp(self, temperature):
         """Method used to display monitored CPU temperature"""
         logger.info(f"Current  temperature is {temperature}C{DEGREE_SIGN}.")
