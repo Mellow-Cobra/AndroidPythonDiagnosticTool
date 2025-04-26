@@ -153,12 +153,13 @@ class AndroidDiagFrontPanel(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.cpu_monitor_graph_window = None
         self.setWindowTitle("Android Diagnostic Tool")
         self.setFixedSize(1024, 768)
         self.main_layout = QVBoxLayout()
         self.serial_numbers = None
         self.config_file = None
+        self.cpu_monitor_graph_window = None
+        self.android_cpu_monitor_thread = None
 
         # Create Tabs
         tabs = QTabWidget()
@@ -291,17 +292,17 @@ class AndroidDiagFrontPanel(QWidget):
 
     def on_run_cpu_temperature_monitor(self):
         """Method used to monitor CPU temperature"""
-        #for _ , device_serial in enumerate(self.serial_numbers):
-        self.cpu_monitor_graph_window = CpuTempGraphMainWindow()
-        self.cpu_monitor_graph_window.show()
+        for _ , device_serial in enumerate(self.serial_numbers):
+            self.cpu_monitor_graph_window = CpuTempGraphMainWindow()
+            self.cpu_monitor_graph_window.show()
 
-        self.android_cpu_monitor_thread = MonitorCpu(device_serial_number=self.serial_numbers[0],
+            self.android_cpu_monitor_thread = MonitorCpu(device_serial_number=self.serial_numbers[0],
                                                     configuration=self.config_file)
-        self.android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.update_monitor_temp)
+            self.android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.update_monitor_temp)
 
 
-        self.android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.cpu_monitor_graph_window.update_plot)
-        self.android_cpu_monitor_thread.start()
+            self.android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.cpu_monitor_graph_window.update_plot)
+            self.android_cpu_monitor_thread.start()
 
 
 
