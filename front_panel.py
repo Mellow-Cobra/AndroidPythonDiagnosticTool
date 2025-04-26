@@ -102,7 +102,7 @@ class MonitorCpu(QThread):
             #for index, cpu in enumerate(cpu_x):
             cpu_temp = float(temperature[0])
             self.cpu_x_temp_signal.emit(cpu_temp)
-            QThread.msleep(1000)
+            QThread.msleep(100)
 
 
 
@@ -291,15 +291,17 @@ class AndroidDiagFrontPanel(QWidget):
 
     def on_run_cpu_temperature_monitor(self):
         """Method used to monitor CPU temperature"""
-        for _ , device_serial in enumerate(self.serial_numbers):
-            self.cpu_monitor_graph_window = CpuTempGraphMainWindow()
-            self.cpu_monitor_graph_window.show()
-            android_cpu_monitor_thread = MonitorCpu(device_serial_number=device_serial,
-                                                    configuration=self.config_file)
-            android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.update_monitor_temp)
+        #for _ , device_serial in enumerate(self.serial_numbers):
+        self.cpu_monitor_graph_window = CpuTempGraphMainWindow()
+        self.cpu_monitor_graph_window.show()
 
-            android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.cpu_monitor_graph_window.update_plot)
-            android_cpu_monitor_thread.run()
+        android_cpu_monitor_thread = MonitorCpu(device_serial_number=self.serial_numbers[0],
+                                                    configuration=self.config_file)
+        android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.update_monitor_temp)
+
+
+        android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.cpu_monitor_graph_window.update_plot)
+        android_cpu_monitor_thread.run()
 
 
 
