@@ -93,18 +93,21 @@ class MonitorCpu(QThread):
         super().__init__()
         self.device_serial_number = device_serial_number
         self.configuration = configuration
+        self.monitor_temp = True
 
     def run(self):
         """Thread runner method"""
         android_cpu_monitor = CpuMonitor(self.device_serial_number)
-        while True:
+        while self.monitor_temp:
             cpu_x, temperature = android_cpu_monitor.monitor_cpu_temperature()
             for index, cpu in enumerate(cpu_x):
              cpu_temp = float(temperature[index])
              self.cpu_x_temp_signal.emit(cpu_temp)
             QThread.msleep(100)
 
-
+    def stop_monitoring_temperature(self):
+        """Stop running CPU temperature monitor"""
+        self.monitor_temp = False
 
 class RunAndroidGPUDiagnostics(QThread):
     """Thread class used to android gpu diagnostics"""
@@ -158,8 +161,8 @@ class AndroidDiagFrontPanel(QWidget):
         self.main_layout = QVBoxLayout()
         self.serial_numbers = None
         self.config_file = None
-        self.cpu_monitor_graph_window = None
-        self.android_cpu_monitor_thread = None
+        self.cpu_temp_monitor_graph_window = None
+        self.android_cpu_temp_monitor_thread = None
 
         # Create Tabs
         tabs = QTabWidget()
@@ -210,12 +213,15 @@ class AndroidDiagFrontPanel(QWidget):
         self.monitor_tab.layout = QGridLayout()
         self.monitor_cpu_sub_layout = QHBoxLayout()
         self.monitor_cpu_temperature_button = QPushButton("Monitor CPU Temperature")
+        self.stop_cpu_temperature_monitor = QPushButton("Stop CPU Temperature Monitor")
         self.monitor_cpu_sub_layout.addWidget(self.monitor_cpu_temperature_button)
+        self.monitor_cpu_sub_layout.addWidget(self.stop_cpu_temperature_monitor)
         self.monitor_tab.layout.addLayout(self.monitor_cpu_sub_layout, 0, 0)
         self.monitor_tab.setLayout(self.monitor_tab.layout)
 
         # Monitor Tab Button Event Connections
         self.monitor_cpu_temperature_button.clicked.connect(self.on_run_cpu_temperature_monitor)
+        self.stop_cpu_temperature_monitor.clicked.connect(self.on_stop_cpu_temperature_monitor)
 
         # Monitor Real Time Graph attributes
         self.cpu_temp_monitor_window = None
@@ -293,23 +299,32 @@ class AndroidDiagFrontPanel(QWidget):
     def on_run_cpu_temperature_monitor(self):
         """Method used to monitor CPU temperature"""
         for _ , device_serial in enumerate(self.serial_numbers):
-            self.cpu_monitor_graph_window = CpuTempGraphMainWindow()
-            self.cpu_monitor_graph_window.show()
+            self.cpu_temp_monitor_graph_window = CpuTempGraphMainWindow()
+            self.cpu_temp_monitor_graph_window.show()
 
-            self.android_cpu_monitor_thread = MonitorCpu(device_serial_number=self.serial_numbers[0],
+
+            self.android_cpu_temp_monitor_thread = MonitorCpu(device_serial_number=self.serial_numbers[0],
                                                     configuration=self.config_file)
-            self.android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.update_monitor_temp)
+            self.android_cpu_temp_monitor_thread.cpu_x_temp_signal.connect(self.update_monitor_temp)
 
 
-            self.android_cpu_monitor_thread.cpu_x_temp_signal.connect(self.cpu_monitor_graph_window.update_plot)
-            self.android_cpu_monitor_thread.start()
-
+            self.android_cpu_temp_monitor_thread.cpu_x_temp_signal.connect(self.cpu_temp_monitor_graph_window.update_plot)
+            self.android_cpu_temp_monitor_thread.start()
 
 
     @pyqtSlot(float)
     def update_monitor_temp(self, temperature):
         """Method used to display monitored CPU temperature"""
         logger.info(f"Current  temperature is {temperature}C{DEGREE_SIGN}.")
+
+
+    def on_stop_cpu_temperature_monitor(self):
+        """Method used to stop CPU temperature monitor thread"""
+        if self.android_cpu_temp_monitor_thread is not None:
+            self.android_cpu_temp_monitor_thread.stop_monitoring_temperature()
+            self.cpu_temp_monitor_graph_window.close()
+            self.cpu_temp_monitor_graph_window = None
+            self.android_cpu_temp_monitor_thread = None
 
 
 

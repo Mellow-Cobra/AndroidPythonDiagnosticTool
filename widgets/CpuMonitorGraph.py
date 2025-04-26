@@ -28,9 +28,6 @@ class CpuTempGraphMainWindow(QMainWindow):
         self.curve = self.graph.plot(self.x, self.y, pen=pg.mkPen('orange', width=2))
 
 
-
-
-
     def update_plot(self, temp):
         self.x.append(self.ptr)
         print(type(temp))
