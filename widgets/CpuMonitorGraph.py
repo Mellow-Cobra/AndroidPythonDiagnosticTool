@@ -10,7 +10,7 @@ class CpuTempGraphMainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Battery Temp Monitor")
+        self.setWindowTitle("CPU Temperature Monitor")
         self.resize(600, 300)
         self.graph = pg.PlotWidget()
         self.setCentralWidget(self.graph)
