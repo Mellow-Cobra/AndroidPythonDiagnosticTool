@@ -103,9 +103,11 @@ class MonitorCpu(QThread):
             self.cpu_x_temp_signal.emit(temperature)
             QThread.msleep(100)
 
+
     def stop_monitoring_temperature(self):
         """Stop running CPU temperature monitor"""
         self.monitor_temp = False
+
 
 class RunAndroidGPUDiagnostics(QThread):
     """Thread class used to android gpu diagnostics"""
@@ -320,6 +322,7 @@ class AndroidDiagFrontPanel(QWidget):
         """Method used to stop CPU temperature monitor thread"""
         if self.android_cpu_temp_monitor_thread is not None:
             self.android_cpu_temp_monitor_thread.stop_monitoring_temperature()
+            self.android_cpu_temp_monitor_thread.wait()
             self.cpu_temp_monitor_graph_window.close()
             self.cpu_temp_monitor_graph_window = None
             self.android_cpu_temp_monitor_thread = None
