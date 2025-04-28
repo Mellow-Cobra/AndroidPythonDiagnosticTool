@@ -85,7 +85,7 @@ class RunWifiDiagnostics(QThread):
 
 class MonitorCpu(QThread):
     """Thread class used to run CPU monitors"""
-    cpu_x_temp_signal = pyqtSignal(list)
+    cpu_x_temp_signal = pyqtSignal(list, list)
 
 
     def __init__(self, device_serial_number, configuration):
@@ -100,7 +100,7 @@ class MonitorCpu(QThread):
         android_cpu_monitor = CpuMonitor(self.device_serial_number)
         while self.monitor_temp:
             cpu_x, temperature = android_cpu_monitor.monitor_cpu_temperature()
-            self.cpu_x_temp_signal.emit(temperature)
+            self.cpu_x_temp_signal.emit(temperature, cpu_x)
             QThread.msleep(100)
 
 
