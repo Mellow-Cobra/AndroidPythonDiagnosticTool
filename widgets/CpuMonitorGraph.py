@@ -13,6 +13,7 @@ class CpuTempGraphMainWindow(QMainWindow):
         self.setWindowTitle("CPU Temperature Monitor")
         self.resize(600, 300)
         self.graph = pg.PlotWidget()
+        
         self.setCentralWidget(self.graph)
         self.initialized = None
 
@@ -23,23 +24,25 @@ class CpuTempGraphMainWindow(QMainWindow):
         self.graph.setYRange(0, 100)
         self.graph.showGrid(x=True, y=True)
 
+        self.labels = []
         self.x_data = []
         self.y_data = []
         self.ptr = 0
         self.curves = []
 
 
-    def update_plot(self, temps: list[float]):
+    def update_plot(self, temps: list[float], cpu_x: list[str]):
         """Method used to generate temperature monitor plots"""
         if self.initialized is None:
             num_lines = len(temps)
+            self.labels = [[] for _ in range(num_lines)]
             self.x_data = [[] for _ in range(num_lines)]
             self.y_data = [[] for _ in range(num_lines)]
             colors = ['orange', 'green', 'red', 'cyan', 'magenta', 'white']
 
             for i in range(num_lines):
                 pen = pg.mkPen(colors[i % len(colors)], width=2)
-                curve = self.graph.plot([], [], pen=pen)
+                curve = self.graph.plot([], [], name=cpu_x[i], pen=pen)
                 self.curves.append(curve)
             self.initialized = True
 
