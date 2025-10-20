@@ -19,8 +19,10 @@ class AndroidGPUDiagnostics:
 
     def gpu_level_zero_diagnostics(self):
         """GPU level one diagnostics"""
-        gpu = self._adb_gpu_interface.get_gpu_frequency()
-        print(gpu)
+        temp = self._adb_gpu_interface.get_gpu_temperature()
+        frequency = self._adb_gpu_interface.get_gpu_frequency()
+        logger.info(temp)
+        logger.info(frequency)
 
     def gpu_level_one_diagnostics(self):
         """GPU level two diagnostics"""
