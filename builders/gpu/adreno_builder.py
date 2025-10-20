@@ -32,6 +32,6 @@ class Adreno(GpuBuilder):
         frequency_counter_exposed_paths = ["/sys/class/kgsl/kgsl-3d0/gpuclk"]
 
         for _, path in enumerate(frequency_counter_exposed_paths):
-            frequency = float(self.adb_int.run_adb_command(f"cat {path}")) / 1000
+            frequency = float(self.adb_int.run_adb_command(f"cat {path}")) / 10e6
             logger.info(f"Adreno GPU core frequency is logged at: {frequency} Hz")
 
